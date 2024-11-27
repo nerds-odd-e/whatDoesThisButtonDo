@@ -26,11 +26,9 @@ class OpenAITestGenerator:
             {
                 "role": "system",
                 "content": (
-                    "You are a test case generator. Your role is to analyze test "
-                    "oracle documents and generate comprehensive test cases. Please "
-                    "prioritize test cases based on their importance, with highest "
-                    "priority given to core functionality, security, and data "
-                    "integrity tests."
+                    "You are a testing expert that specializes in exploratory "
+                    "testing. Your role is to analyze test oracle documents and "
+                    "perform testing tasks based on user requests."
                 )
             }
         ]
@@ -45,12 +43,14 @@ class OpenAITestGenerator:
                 )
             })
         
-        # Add final user request
+        # Add final user request with detailed instructions
         messages.append({
             "role": "user",
             "content": (
-                "Based on these test oracle documents, please generate a comprehensive "
-                "list of test cases."
+                "Based on these test oracle documents, please generate a "
+                "comprehensive list of test cases. Please prioritize test cases "
+                "based on their importance, with highest priority given to core "
+                "functionality, security, and data integrity tests."
             )
         })
         
