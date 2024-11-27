@@ -1,5 +1,6 @@
 from pathlib import Path
 from .openai_test_generator import OpenAITestGenerator
+from .generate_test_plan_command import GenerateTestPlanCommand
 
 def load_test_oracles(oracle_dir: str) -> list:
     """
@@ -34,6 +35,18 @@ def main():
         for i, test_case in enumerate(test_cases, 1):
             print(f"\nTest Case {i}:")
             print(test_case)
+        
+        # Generate and print test plan for the first test case
+        if test_cases:
+            print("\nGenerating Test Plan for First Test Case...")
+            test_plan_command = GenerateTestPlanCommand(
+                openai_client.openai_client,
+                test_cases[0],
+                test_oracles
+            )
+            test_plan = test_plan_command.execute()
+            print("\nTest Plan:")
+            print(test_plan)
             
     except ValueError as e:
         print(f"Error: {e}")
