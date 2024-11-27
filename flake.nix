@@ -19,6 +19,7 @@
             python3Packages.virtualenv
             python3Packages.pytest
             python3Packages.ruff
+            python3Packages.openai
             git
           ];
 
