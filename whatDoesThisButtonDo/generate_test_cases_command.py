@@ -9,17 +9,6 @@ class GenerateTestCasesCommand(ChatCompletionCommand):
         self.test_oracles = test_oracles
 
     def execute(self) -> List[str]:
-        messages = [
-            {"role": "system", "content": "You are a test case generator."},
-            {
-                "role": "user",
-                "content": (
-                    "Generate test cases based on these test oracles: "
-                    f"{json.dumps(self.test_oracles)}"
-                )
-            }
-        ]
-
         tools = [
             {
                 "type": "function",
@@ -48,9 +37,10 @@ class GenerateTestCasesCommand(ChatCompletionCommand):
         tool_choice = {"type": "function", "function": {"name": "generate_test_cases"}}
 
         response = self.openai_client.create_chat_completion(
-            messages=messages,
+            user_message="Generate test cases based on the provided test oracles.",
             tools=tools,
-            tool_choice=tool_choice
+            tool_choice=tool_choice,
+            test_oracles=self.test_oracles
         )
 
         function_call = response.choices[0].message.tool_calls[0].function

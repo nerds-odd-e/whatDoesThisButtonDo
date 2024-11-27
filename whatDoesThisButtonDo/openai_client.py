@@ -1,6 +1,7 @@
 import os
 from openai import OpenAI
 from typing import List, Dict
+import json
 
 class OpenAIClient:
     def __init__(self):
@@ -12,12 +13,28 @@ class OpenAIClient:
 
     def create_chat_completion(
         self,
-        messages: List[Dict[str, str]],
+        user_message: str,
         tools: List[Dict],
         tool_choice: Dict[str, any],
+        test_oracles: List[Dict[str, str]],
         temperature: float = 0.7,
         max_tokens: int = 2000
     ) -> any:
+        messages = [
+            {
+                "role": "system",
+                "content": "You are an AI assistant specialized in software testing."
+            }
+        ]
+        
+        for oracle in test_oracles:
+            messages.append({
+                "role": "system",
+                "content": f"Test Oracle: {json.dumps(oracle)}"
+            })
+        
+        messages.append({"role": "user", "content": user_message})
+
         return self.client.chat.completions.create(
             model="gpt-4",
             messages=messages,

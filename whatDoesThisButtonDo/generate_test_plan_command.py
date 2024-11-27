@@ -15,19 +15,6 @@ class GenerateTestPlanCommand(ChatCompletionCommand):
         self.test_oracles = test_oracles
 
     def execute(self) -> str:
-        messages = [
-            {"role": "system", "content": "You are a test planning assistant."},
-            {
-                "role": "user",
-                "content": (
-                    "Generate a detailed test plan for this test case, "
-                    "using the provided test oracles as context.\n"
-                    f"Test Case: {self.test_case}\n"
-                    f"Test Oracles: {json.dumps(self.test_oracles)}"
-                )
-            }
-        ]
-
         tools = [
             {
                 "type": "function",
@@ -56,9 +43,13 @@ class GenerateTestPlanCommand(ChatCompletionCommand):
         tool_choice = {"type": "function", "function": {"name": "generate_test_plan"}}
 
         response = self.openai_client.create_chat_completion(
-            messages=messages,
+            user_message=(
+                f"Generate a detailed test plan for this test case:\n"
+                f"{self.test_case}"
+            ),
             tools=tools,
-            tool_choice=tool_choice
+            tool_choice=tool_choice,
+            test_oracles=self.test_oracles
         )
 
         function_call = response.choices[0].message.tool_calls[0].function
