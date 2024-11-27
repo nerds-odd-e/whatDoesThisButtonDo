@@ -13,4 +13,8 @@ This project leverages AI capabilities to perform exploratory testing on softwar
 
 ## Getting Started
 
-1. Clone the repository:
+1. Start a nix-shell:
+
+```bash
+nix develop
+```

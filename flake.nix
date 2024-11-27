@@ -18,6 +18,7 @@
             python3Packages.pip
             python3Packages.virtualenv
             python3Packages.pytest
+            git
           ];
 
           shellHook = ''
@@ -25,6 +26,8 @@
               python -m virtualenv venv
             fi
             source venv/bin/activate
+            # Set up a green prompt to indicate nix environment
+            export PS1="\[\033[1;32m\][nix-dev]\[\033[0m\] \[\033[1;34m\]\w\[\033[0m\] $ "
           '';
         };
       });
