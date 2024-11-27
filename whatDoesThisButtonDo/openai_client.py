@@ -28,7 +28,9 @@ class OpenAITestGenerator:
                 "content": (
                     "You are a test case generator. Your role is to analyze test "
                     "oracle documents and generate comprehensive test cases. Please "
-                    "output test cases in a clear, numbered format."
+                    "prioritize test cases based on their importance, with highest "
+                    "priority given to core functionality, security, and data "
+                    "integrity tests."
                 )
             }
         ]
@@ -52,42 +54,69 @@ class OpenAITestGenerator:
             )
         })
         
-        # Get completion from OpenAI
+        # Update the API call to use function calling
         response = self.client.chat.completions.create(
             model="gpt-4",
             messages=messages,
+            tools=[{
+                "type": "function",
+                "function": {
+                    "name": "add_test_cases",
+                    "description": (
+                        "Add all test cases to the collection, ordered from "
+                        "highest to lowest priority"
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "test_cases": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "description": {
+                                            "type": "string",
+                                            "description": (
+                                                "Detailed description of the "
+                                                "test case"
+                                            )
+                                        },
+                                        "priority": {
+                                            "type": "string",
+                                            "enum": ["high", "medium", "low"],
+                                            "description": (
+                                                "Priority level of the test case"
+                                            )
+                                        }
+                                    },
+                                    "required": ["description", "priority"]
+                                },
+                                "description": (
+                                    "Array of prioritized test cases, ordered "
+                                    "from highest to lowest priority"
+                                )
+                            }
+                        },
+                        "required": ["test_cases"]
+                    }
+                }
+            }],
+            tool_choice={"type": "function", "function": {"name": "add_test_cases"}},
             temperature=0.7,
             max_tokens=2000
         )
         
-        # Extract and parse the response
-        content = response.choices[0].message.content
-        return self._parse_test_cases(content)
-    
-    def _parse_test_cases(self, content: str) -> List[str]:
-        """
-        Parse test cases from chat completion response.
-        Splits the response by newline and numbers to separate test cases.
-        """
-        # Split content by newlines and filter out empty lines
-        lines = [line.strip() for line in content.split('\n') if line.strip()]
-        
+        # Extract test cases from function calls
         test_cases = []
-        current_test_case = []
-        
-        for line in lines:
-            # If line starts with a number and period (e.g., "1.", "2.", etc.)
-            if any(line.startswith(f"{i}.") for i in range(1, 100)):
-                # If we have a previous test case, add it to the list
-                if current_test_case:
-                    test_cases.append('\n'.join(current_test_case))
-                    current_test_case = []
-                current_test_case.append(line)
-            else:
-                current_test_case.append(line)
-        
-        # Add the last test case if exists
-        if current_test_case:
-            test_cases.append('\n'.join(current_test_case))
+        for choice in response.choices:
+            if choice.message.tool_calls:
+                for tool_call in choice.message.tool_calls:
+                    if tool_call.function.name == "add_test_cases":
+                        import json
+                        args = json.loads(tool_call.function.arguments)
+                        # Extract just the descriptions, maintaining priority order
+                        test_cases.extend(
+                            case["description"] for case in args["test_cases"]
+                        )
         
         return test_cases 
