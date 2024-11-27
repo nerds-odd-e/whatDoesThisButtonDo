@@ -1,7 +1,6 @@
 import os
 from openai import OpenAI
 from typing import List, Dict
-import json
 
 class OpenAIClient:
     def __init__(self):
@@ -23,14 +22,21 @@ class OpenAIClient:
         messages = [
             {
                 "role": "system",
-                "content": "You are an AI assistant specialized in software testing."
+                "content": (
+                    "You are a testing expert that specializes in exploratory "
+                    "testing. Your role is to analyze test oracle documents and "
+                    "perform testing tasks based on user requests."
+                )
             }
         ]
         
         for oracle in test_oracles:
             messages.append({
                 "role": "system",
-                "content": f"Test Oracle: {json.dumps(oracle)}"
+                "content": (
+                    f"Here's a test oracle document named '{oracle['name']}':\n\n"
+                    f"{oracle['content']}"
+                )
             })
         
         messages.append({"role": "user", "content": user_message})

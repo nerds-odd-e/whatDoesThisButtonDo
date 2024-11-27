@@ -44,7 +44,7 @@ class GenerateTestPlanCommand(ChatCompletionCommand):
 
         response = self.openai_client.create_chat_completion(
             user_message=(
-                f"Generate a detailed test plan for this test case:\n"
+                f"Generate a test plan for this test case:\n"
                 f"{self.test_case}"
             ),
             tools=tools,

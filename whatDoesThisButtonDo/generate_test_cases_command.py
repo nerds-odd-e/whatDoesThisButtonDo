@@ -37,7 +37,11 @@ class GenerateTestCasesCommand(ChatCompletionCommand):
         tool_choice = {"type": "function", "function": {"name": "generate_test_cases"}}
 
         response = self.openai_client.create_chat_completion(
-            user_message="Generate test cases based on the provided test oracles.",
+            user_message=
+                            "Based on these test oracle documents, please generate a "
+                "comprehensive list of test cases. Please prioritize test cases "
+                "based on their importance, with highest priority given to core "
+                "functionality, security, and data integrity tests.",
             tools=tools,
             tool_choice=tool_choice,
             test_oracles=self.test_oracles
