@@ -1,5 +1,5 @@
 from pathlib import Path
-from .openai_client import OpenAITestGenerator
+from .openai_test_generator import OpenAITestGenerator
 
 def load_test_oracles(oracle_dir: str) -> list:
     """
