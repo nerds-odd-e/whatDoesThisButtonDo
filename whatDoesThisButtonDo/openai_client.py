@@ -1,90 +1,62 @@
 import os
 from openai import OpenAI
 from typing import List, Dict
+import json
+from abc import ABC, abstractmethod
 
-class OpenAITestGenerator:
+class OpenAIClient:
     def __init__(self):
         api_key = os.getenv('OPENAI_API_KEY')
         if not api_key:
             raise ValueError("OPENAI_API_KEY environment variable is required")
         
         self.client = OpenAI(api_key=api_key)
-    
-    def _create_chat_completion(
+
+    def create_chat_completion(
         self,
-        test_oracles: List[Dict[str, str]],
-        tools: List[Dict]
+        messages: List[Dict[str, str]],
+        tools: List[Dict],
+        tool_choice: Dict[str, any],
+        temperature: float = 0.7,
+        max_tokens: int = 2000
     ) -> any:
-        """
-        Creates a chat completion request to OpenAI API.
-        
-        Args:
-            test_oracles: List of dictionaries containing test oracle content
-                         Each dict should have 'name' and 'content' keys
-            tools: List of tool configurations for the API call
-            
-        Returns:
-            OpenAI API response
-        """
-        messages = [
-            {
-                "role": "system",
-                "content": (
-                    "You are a testing expert that specializes in exploratory "
-                    "testing. Your role is to analyze test oracle documents and "
-                    "perform testing tasks based on user requests."
-                )
-            }
-        ]
-        
-        # Add test oracles as assistant messages
-        for oracle in test_oracles:
-            messages.append({
-                "role": "user",
-                "content": (
-                    f"Here's a test oracle document named '{oracle['name']}':\n\n"
-                    f"{oracle['content']}"
-                )
-            })
-        
-        # Add final user request with detailed instructions
-        messages.append({
-            "role": "user",
-            "content": (
-                "Based on these test oracle documents, please generate a "
-                "comprehensive list of test cases. Please prioritize test cases "
-                "based on their importance, with highest priority given to core "
-                "functionality, security, and data integrity tests."
-            )
-        })
-        
         return self.client.chat.completions.create(
             model="gpt-4",
             messages=messages,
             tools=tools,
-            tool_choice={"type": "function", "function": {"name": "add_test_cases"}},
-            temperature=0.7,
-            max_tokens=2000
+            tool_choice=tool_choice,
+            temperature=temperature,
+            max_tokens=max_tokens
         )
-    
-    def generate_test_cases(self, test_oracles: List[Dict[str, str]]) -> List[str]:
-        """
-        Generates test cases using OpenAI chat completion API.
-        
-        Args:
-            test_oracles: List of dictionaries containing test oracle content
-                         Each dict should have 'name' and 'content' keys
-            
-        Returns:
-            List of generated test cases
-        """
-        tools = [{
+
+class ChatCompletionCommand(ABC):
+    @abstractmethod
+    def execute(self) -> List[str]:
+        pass
+
+class GenerateTestCasesCommand(ChatCompletionCommand):
+    def __init__(self, openai_client: OpenAIClient, test_oracles: List[Dict[str, str]]):
+        self.openai_client = openai_client
+        self.test_oracles = test_oracles
+
+    def execute(self) -> List[str]:
+        tools = self._get_tools()
+        messages = self._create_messages()
+        response = self.openai_client.create_chat_completion(
+            messages=messages,
+            tools=tools,
+            tool_choice={"type": "function", "function": {"name": "add_test_cases"}},
+        )
+        return self._extract_test_cases(response)
+
+    def _get_tools(self) -> List[Dict]:
+        return [{
             "type": "function",
             "function": {
                 "name": "add_test_cases",
                 "description": (
-                    "Add all test cases to the collection, ordered from "
-                    "highest to lowest priority"
+                    "Add all test cases to the collection, ordered from highest to "
+                    "lowest priority"
                 ),
                 "parameters": {
                     "type": "object",
@@ -97,23 +69,20 @@ class OpenAITestGenerator:
                                     "description": {
                                         "type": "string",
                                         "description": (
-                                            "Detailed description of the "
-                                            "test case"
+                                            "Detailed description of the test case"
                                         )
                                     },
                                     "priority": {
                                         "type": "string",
                                         "enum": ["high", "medium", "low"],
-                                        "description": (
-                                            "Priority level of the test case"
-                                        )
+                                        "description": "Priority level of the test case"
                                     }
                                 },
                                 "required": ["description", "priority"]
                             },
                             "description": (
-                                "Array of prioritized test cases, ordered "
-                                "from highest to lowest priority"
+                                "Array of prioritized test cases, ordered from "
+                                "highest to lowest priority"
                             )
                         }
                     },
@@ -121,20 +90,54 @@ class OpenAITestGenerator:
                 }
             }
         }]
+
+    def _create_messages(self) -> List[Dict[str, str]]:
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are a testing expert that specializes in exploratory testing. "
+                    "Your role is to analyze test oracle documents and perform testing "
+                    "tasks based on user requests."
+                )
+            }
+        ]
         
-        response = self._create_chat_completion(test_oracles, tools)
+        for oracle in self.test_oracles:
+            content = (
+                f"Here's a test oracle document named '{oracle['name']}':\n\n"
+                f"{oracle['content']}"
+            )
+            messages.append({"role": "user", "content": content})
         
-        # Extract test cases from function calls
+        messages.append({
+            "role": "user",
+            "content": (
+                "Based on these test oracle documents, please generate a "
+                "comprehensive list of test cases. Please prioritize test cases "
+                "based on their importance, with highest priority given to core "
+                "functionality, security, and data integrity tests."
+            )
+        })
+        
+        return messages
+
+    def _extract_test_cases(self, response: any) -> List[str]:
         test_cases = []
         for choice in response.choices:
             if choice.message.tool_calls:
                 for tool_call in choice.message.tool_calls:
                     if tool_call.function.name == "add_test_cases":
-                        import json
                         args = json.loads(tool_call.function.arguments)
-                        # Extract just the descriptions, maintaining priority order
                         test_cases.extend(
                             case["description"] for case in args["test_cases"]
                         )
-        
-        return test_cases 
+        return test_cases
+
+class OpenAITestGenerator:
+    def __init__(self):
+        self.openai_client = OpenAIClient()
+
+    def generate_test_cases(self, test_oracles: List[Dict[str, str]]) -> List[str]:
+        command = GenerateTestCasesCommand(self.openai_client, test_oracles)
+        return command.execute() 
