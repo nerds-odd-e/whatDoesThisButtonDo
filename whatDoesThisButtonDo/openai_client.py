@@ -10,18 +10,22 @@ class OpenAITestGenerator:
         
         self.client = OpenAI(api_key=api_key)
     
-    def generate_test_cases(self, test_oracles: List[Dict[str, str]]) -> List[str]:
+    def _create_chat_completion(
+        self,
+        test_oracles: List[Dict[str, str]],
+        tools: List[Dict]
+    ) -> any:
         """
-        Generates test cases using OpenAI chat completion API.
+        Creates a chat completion request to OpenAI API.
         
         Args:
             test_oracles: List of dictionaries containing test oracle content
                          Each dict should have 'name' and 'content' keys
+            tools: List of tool configurations for the API call
             
         Returns:
-            List of generated test cases
+            OpenAI API response
         """
-        # Prepare messages for the chat
         messages = [
             {
                 "role": "system",
@@ -54,57 +58,71 @@ class OpenAITestGenerator:
             )
         })
         
-        # Update the API call to use function calling
-        response = self.client.chat.completions.create(
+        return self.client.chat.completions.create(
             model="gpt-4",
             messages=messages,
-            tools=[{
-                "type": "function",
-                "function": {
-                    "name": "add_test_cases",
-                    "description": (
-                        "Add all test cases to the collection, ordered from "
-                        "highest to lowest priority"
-                    ),
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "test_cases": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "description": {
-                                            "type": "string",
-                                            "description": (
-                                                "Detailed description of the "
-                                                "test case"
-                                            )
-                                        },
-                                        "priority": {
-                                            "type": "string",
-                                            "enum": ["high", "medium", "low"],
-                                            "description": (
-                                                "Priority level of the test case"
-                                            )
-                                        }
-                                    },
-                                    "required": ["description", "priority"]
-                                },
-                                "description": (
-                                    "Array of prioritized test cases, ordered "
-                                    "from highest to lowest priority"
-                                )
-                            }
-                        },
-                        "required": ["test_cases"]
-                    }
-                }
-            }],
+            tools=tools,
             tool_choice={"type": "function", "function": {"name": "add_test_cases"}},
             temperature=0.7,
             max_tokens=2000
         )
+    
+    def generate_test_cases(self, test_oracles: List[Dict[str, str]]) -> List[str]:
+        """
+        Generates test cases using OpenAI chat completion API.
+        
+        Args:
+            test_oracles: List of dictionaries containing test oracle content
+                         Each dict should have 'name' and 'content' keys
+            
+        Returns:
+            List of generated test cases
+        """
+        tools = [{
+            "type": "function",
+            "function": {
+                "name": "add_test_cases",
+                "description": (
+                    "Add all test cases to the collection, ordered from "
+                    "highest to lowest priority"
+                ),
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "test_cases": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "description": {
+                                        "type": "string",
+                                        "description": (
+                                            "Detailed description of the "
+                                            "test case"
+                                        )
+                                    },
+                                    "priority": {
+                                        "type": "string",
+                                        "enum": ["high", "medium", "low"],
+                                        "description": (
+                                            "Priority level of the test case"
+                                        )
+                                    }
+                                },
+                                "required": ["description", "priority"]
+                            },
+                            "description": (
+                                "Array of prioritized test cases, ordered "
+                                "from highest to lowest priority"
+                            )
+                        }
+                    },
+                    "required": ["test_cases"]
+                }
+            }
+        }]
+        
+        response = self._create_chat_completion(test_oracles, tools)
         
         # Extract test cases from function calls
         test_cases = []
