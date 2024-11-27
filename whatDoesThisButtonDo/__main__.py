@@ -3,7 +3,7 @@ from pathlib import Path
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python -m whatDoesThisButtonDo <test_folder>")
+        print("Usage: python -m whatDoesThisButtonDo <test_oracle_folder>")
         sys.exit(1)
     
     test_folder = Path(sys.argv[1])
