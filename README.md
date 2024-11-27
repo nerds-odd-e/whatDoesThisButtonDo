@@ -18,3 +18,19 @@ This project leverages AI capabilities to perform exploratory testing on softwar
 ```bash
 nix develop
 ```
+
+## Development
+
+### Code Style
+
+We use `ruff` for code linting and formatting. To check your code:
+
+```bash
+ruff check .
+```
+
+To automatically fix issues:
+
+```bash
+ruff check --fix .
+```
