@@ -2,7 +2,7 @@ from typing import Any, Dict, TYPE_CHECKING
 
 from whatDoesThisButtonDo.testable_sandbox import TestableSandbox
 from .exploratory_test import ExploratoryTest
-from . import OpenAITestGenerator
+from whatDoesThisButtonDo.AiAssistant.openai_test_generator import OpenAITestGenerator
 
 if TYPE_CHECKING:
     from .executor_factory import ExecutorFactory
@@ -13,17 +13,23 @@ class Executor:
     Based on the domain model, Executor runs tests and manages the test sandbox.
     """
     
-    def __init__(self, testable_sandbox: TestableSandbox, config: Dict[str, Any]):
+    def __init__(
+        self, 
+        testable_sandbox: TestableSandbox, 
+        config: Dict[str, Any],
+        ai_assistant: OpenAITestGenerator
+    ):
         """
-        Initialize Executor with a testable sandbox.
+        Initialize Executor with a testable sandbox and AI assistant.
         
         Args:
             testable_sandbox: TestableSandbox instance
             config: Configuration parameters for the sandbox
+            ai_assistant: OpenAITestGenerator instance for test generation
         """
         self.testable_sandbox = testable_sandbox
         self.config = config
-        self.ai_assistant = None  # Will be set later
+        self.ai_assistant = ai_assistant
         
     @classmethod
     def create(cls) -> 'ExecutorFactory':
@@ -36,25 +42,10 @@ class Executor:
         from .executor_factory import ExecutorFactory
         return ExecutorFactory()
     
-    def set_ai_assistant(self, ai_assistant: OpenAITestGenerator) -> None:
-        """
-        Sets the AI assistant to be used for exploration
-        
-        Args:
-            ai_assistant: OpenAITestGenerator instance
-        """
-        self.ai_assistant = ai_assistant
-    
     def explore(self) -> None:
         """
         Initiates exploratory testing using the configured sandbox and AI assistant
         """
-        if self.ai_assistant is None:
-            raise ValueError(
-                "AI assistant not set. "
-                "Call set_ai_assistant before explore."
-            )
-            
         exploratory_test = ExploratoryTest(
             self.testable_sandbox, 
             self.ai_assistant

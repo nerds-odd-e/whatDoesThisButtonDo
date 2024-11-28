@@ -1,4 +1,3 @@
-
 from . import OpenAITestGenerator
 from .executor import Executor
 from .test_scope import TestScope
@@ -33,6 +32,6 @@ class Application:
                         "environment": "test",
                         "cleanup_enabled": True
                     })
+                    .with_ai_assistant(openai_client)
                     .build())
-            executor.set_ai_assistant(openai_client)
             executor.explore()

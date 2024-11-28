@@ -1,5 +1,6 @@
 from typing import Any, Dict
 
+from whatDoesThisButtonDo.AiAssistant.openai_test_generator import OpenAITestGenerator
 from whatDoesThisButtonDo.testable_sandbox import TestableSandbox
 from .executor import Executor
 
@@ -12,6 +13,7 @@ class ExecutorFactory:
     def __init__(self):
         self._testable_sandbox = None
         self._sandbox_config: Dict[str, Any] = {}
+        self._ai_assistant = None
         
     def with_sandbox(self, 
                     testable_sandbox: TestableSandbox, 
@@ -30,6 +32,19 @@ class ExecutorFactory:
         self._sandbox_config = config or {}
         return self
         
+    def with_ai_assistant(self, ai_assistant: OpenAITestGenerator) -> 'ExecutorFactory':
+        """
+        Configures the AI assistant for test generation.
+        
+        Args:
+            ai_assistant: The OpenAITestGenerator instance to use
+            
+        Returns:
+            self for method chaining
+        """
+        self._ai_assistant = ai_assistant
+        return self
+        
     def build(self) -> Executor:
         """
         Creates and returns a configured Executor instance.
@@ -43,4 +58,12 @@ class ExecutorFactory:
         if not self._testable_sandbox:
             raise ValueError("Testable sandbox must be configured before building")
             
-        return Executor(self._testable_sandbox, self._sandbox_config) 
+        if not self._ai_assistant:
+            raise ValueError("AI assistant must be configured before building")
+            
+        executor = Executor(
+            self._testable_sandbox, 
+            self._sandbox_config, 
+            self._ai_assistant
+        )
+        return executor 
