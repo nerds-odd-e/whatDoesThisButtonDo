@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Dict, List
 from pathlib import Path
 
 class TestScope():
@@ -7,45 +7,14 @@ class TestScope():
     TestScope defines the boundaries and constraints for testing.
     """
     
-    def __init__(self, **kwargs):
+    def __init__(self):
         """
         Initialize the test scope with configuration.
         
         Args:
             **kwargs: Configuration parameters for the scope
         """
-        self.config = kwargs
         self.test_oracles: List[Dict[str, str]] = []
-    
-    def is_action_allowed(self, action: Dict[str, Any]) -> bool:
-        """
-        Checks if an action is within the defined test scope.
-        
-        Args:
-            action: Dictionary containing action details
-            
-        Returns:
-            Boolean indicating if the action is allowed
-        """
-        return True
-    
-    def get_available_actions(self) -> List[Dict[str, Any]]:
-        """
-        Returns the list of available actions within the scope.
-        
-        Returns:
-            List of dictionaries containing available actions
-        """
-        return []
-    
-    def get_constraints(self) -> Dict[str, Any]:
-        """
-        Returns the constraints that define the test scope.
-        
-        Returns:
-            Dictionary containing scope constraints
-        """
-        return {}
     
     def load_test_oracles(self, oracle_dir: str) -> List[Dict[str, str]]:
         """
