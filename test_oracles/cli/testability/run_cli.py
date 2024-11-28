@@ -14,7 +14,6 @@ def _run_cli(queue):
             app = CommandLineApplication()
             app.run()
     except SystemExit as e:
-        # Catch the SystemExit from argparse
         success = (e.code == 0)
     except Exception as e:
         stderr.write(str(e))
@@ -34,17 +33,19 @@ def run_cli():
     Returns:
         Dict containing the command output and execution status
     """
+    queue = Queue()
+    p = None
     try:
-        queue = Queue()
         p = Process(target=_run_cli, args=(queue,))
         p.start()
         p.join(timeout=5)  # Add timeout to prevent hanging
         
         if p.is_alive():
             p.terminate()
+            p.join()  # Wait for termination
             raise TimeoutError("Process took too long to complete")
             
-        result = queue.get()
+        result = queue.get_nowait()  # Non-blocking get
         return result
         
     except Exception as e:
@@ -54,6 +55,13 @@ def run_cli():
             "stderr": str(e),
             "returncode": -1
         }
+    finally:
+        # Clean up resources
+        if p and p.is_alive():
+            p.terminate()
+            p.join()
+        queue.close()
+        queue.join_thread()
 
 if __name__ == "__main__":
     result = run_cli()
