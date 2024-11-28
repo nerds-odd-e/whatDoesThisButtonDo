@@ -1,7 +1,7 @@
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict
+
+from whatDoesThisButtonDo.testable_sandbox import TestableSandbox
 from .executor import Executor
-from .test_sandbox import TestSandbox
-from .test_scope import TestScope
 
 class ExecutorFactory:
     """
@@ -10,38 +10,24 @@ class ExecutorFactory:
     """
     
     def __init__(self):
-        self._sandbox_class: Optional[Type[TestSandbox]] = None
+        self._testable_sandbox = None
         self._sandbox_config: Dict[str, Any] = {}
-        self._scope: Optional[TestScope] = None
         
     def with_sandbox(self, 
-                    sandbox_class: Type[TestSandbox], 
+                    testable_sandbox: TestableSandbox, 
                     config: Dict[str, Any] = None) -> 'ExecutorFactory':
         """
-        Configures the sandbox type and its configuration.
+        Configures the testable sandbox and its configuration.
         
         Args:
-            sandbox_class: The TestSandbox class to use
+            testable_sandbox: The TestableSandbox instance to use
             config: Configuration parameters for the sandbox
             
         Returns:
             self for method chaining
         """
-        self._sandbox_class = sandbox_class
+        self._testable_sandbox = testable_sandbox
         self._sandbox_config = config or {}
-        return self
-        
-    def with_scope(self, scope: TestScope) -> 'ExecutorFactory':
-        """
-        Sets the test scope for the executor.
-        
-        Args:
-            scope: TestScope instance defining the testing boundaries
-            
-        Returns:
-            self for method chaining
-        """
-        self._scope = scope
         return self
         
     def build(self) -> Executor:
@@ -54,17 +40,7 @@ class ExecutorFactory:
         Raises:
             ValueError: If required configurations are missing
         """
-        if not self._sandbox_class:
-            raise ValueError("Sandbox class must be configured before building")
+        if not self._testable_sandbox:
+            raise ValueError("Testable sandbox must be configured before building")
             
-        # Create sandbox instance with config
-        sandbox = self._sandbox_class(**self._sandbox_config)
-        
-        # Create executor
-        executor = Executor(sandbox)
-        
-        # Configure scope if provided
-        if self._scope:
-            executor.set_scope(self._scope)
-            
-        return executor 
+        return Executor(self._testable_sandbox, self._sandbox_config) 

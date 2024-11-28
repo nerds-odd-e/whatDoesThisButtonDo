@@ -1,6 +1,6 @@
-from typing import Any, Dict, Optional, TYPE_CHECKING
-from .test_sandbox import TestSandbox
-from .test_scope import TestScope
+from typing import Any, Dict, TYPE_CHECKING
+
+from whatDoesThisButtonDo.testable_sandbox import TestableSandbox
 
 if TYPE_CHECKING:
     from .executor_factory import ExecutorFactory
@@ -11,15 +11,16 @@ class Executor:
     Based on the domain model, Executor runs tests and manages the test sandbox.
     """
     
-    def __init__(self, sandbox: TestSandbox):
+    def __init__(self, testable_sandbox: TestableSandbox, config: Dict[str, Any]):
         """
-        Initialize Executor with a configured sandbox.
+        Initialize Executor with a testable sandbox.
         
         Args:
-            sandbox: Configured TestSandbox instance
+            testable_sandbox: TestableSandbox instance
+            config: Configuration parameters for the sandbox
         """
-        self.sandbox = sandbox
-        self.scope: Optional[TestScope] = None
+        self.testable_sandbox = testable_sandbox
+        self.config = config
         
     @classmethod
     def create(cls) -> 'ExecutorFactory':
@@ -32,13 +33,10 @@ class Executor:
         from .executor_factory import ExecutorFactory
         return ExecutorFactory()
     
-    def set_scope(self, scope: TestScope) -> None:
-        """Sets the test scope for execution"""
-        self.scope = scope
-        
     def reset_environment(self) -> None:
         """Resets the test environment to its initial state"""
-        self.sandbox.reset()
+        # Implementation will depend on how you want to reset the testable sandbox
+        pass
         
     def execute_action(self, action: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -50,11 +48,12 @@ class Executor:
         Returns:
             Dictionary containing the results of the action execution
         """
-        if not self.scope:
-            raise ValueError("Test scope must be set before execution")
-            
-        return self.sandbox.execute(action)
+        # Implementation will depend on how you want to execute actions
+        # in the testable sandbox
+        pass
     
     def get_current_state(self) -> Dict[str, Any]:
         """Returns the current state of the application under test"""
-        return self.sandbox.get_state() 
+        # Implementation will depend on how you want to get state
+        # from the testable sandbox
+        pass

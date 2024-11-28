@@ -2,7 +2,6 @@ from typing import Dict, List
 
 from . import OpenAITestGenerator, GenerateTestPlanCommand
 from .executor import Executor
-from .test_sandbox import TestSandbox
 from .test_scope import TestScope
 
 
@@ -15,34 +14,35 @@ class Application:
     def __init__(self):
         self.test_oracles: List[Dict[str, str]] = []
         
-    def _create_executor(self, test_scope: TestScope) -> Executor:
-        """Creates and configures the test executor"""
-        return (Executor.create()
-                .with_sandbox(TestSandbox, {
-                    "environment": "test",
-                    "cleanup_enabled": True
-                })
-                .with_scope(test_scope)
-                .build())
-    
+    def _create_executors(self, test_scope: TestScope) -> List[Executor]:
+        """Creates and configures executors for each testable sandbox"""
+        executors = []
+        for sandbox in test_scope.get_testable_sandboxes():
+            executor = (Executor.create()
+                    .with_sandbox(sandbox, {
+                        "environment": "test",
+                        "cleanup_enabled": True
+                    })
+                    .build())
+            executors.append(executor)
+        return executors
+
     def run(self, oracle_dir: str) -> None:
         """
-        Main execution flow of the application
+        Main execution method that runs the test oracles
         
         Args:
             oracle_dir: Directory containing test oracle files
         """
-        # Create TestScope instance
         test_scope = TestScope()
-        
-        # Load test oracles
         self.test_oracles = test_scope.load_test_oracles(oracle_dir)
         
-        # Create executor with test_scope as a parameter
-        executor = self._create_executor(test_scope)
+        # Create executors for each sandbox
+        executors = self._create_executors(test_scope)
         
-        # Update references from self.executor to executor
-        executor.reset_environment()
+        # Reset environment for each executor
+        for executor in executors:
+            executor.reset_environment()
         
         try:
             # Initialize OpenAI client
