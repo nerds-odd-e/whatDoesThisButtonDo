@@ -15,16 +15,16 @@ class TestScope():
             **kwargs: Configuration parameters for the scope
         """
         self.test_oracles: List[Dict[str, str]] = []
-        self._testable_folders: List[Path] = []
+        self._testable_sandboxes: List[Path] = []
     
-    def get_testable_folders(self) -> List[Path]:
+    def get_testable_sandboxes(self) -> List[Path]:
         """
         Get the list of folders that contain a testability subfolder.
         
         Returns:
             List of Path objects representing folders containing testability subfolders
         """
-        return self._testable_folders
+        return self._testable_sandboxes
     
     def load_test_oracles(self, oracle_dir: str) -> List[Dict[str, str]]:
         """
@@ -46,12 +46,12 @@ class TestScope():
                     'content': f.read()
                 })
         
-        self._testable_folders = []
+        self._testable_sandboxes = []
         
         # Walk through all subdirectories
         for path in oracle_path.rglob("*"):
             # Check for testability folders
             if path.is_dir() and path.name == "testability":
-                self._testable_folders.append(path.parent)
+                self._testable_sandboxes.append(path.parent)
         
         return self.test_oracles
