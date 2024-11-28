@@ -1,6 +1,9 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, TYPE_CHECKING
 from .test_sandbox import TestSandbox
 from .test_scope import TestScope
+
+if TYPE_CHECKING:
+    from .executor_factory import ExecutorFactory
 
 class Executor:
     """
@@ -9,9 +12,26 @@ class Executor:
     """
     
     def __init__(self, sandbox: TestSandbox):
+        """
+        Initialize Executor with a configured sandbox.
+        
+        Args:
+            sandbox: Configured TestSandbox instance
+        """
         self.sandbox = sandbox
         self.current_scope: Optional[TestScope] = None
         
+    @classmethod
+    def create(cls) -> 'ExecutorFactory':
+        """
+        Factory method to start building an Executor instance.
+        
+        Returns:
+            ExecutorFactory instance for configuring the Executor
+        """
+        from .executor_factory import ExecutorFactory
+        return ExecutorFactory()
+    
     def set_scope(self, scope: TestScope) -> None:
         """Sets the test scope for execution"""
         self.current_scope = scope

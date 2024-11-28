@@ -1,5 +1,8 @@
 from pathlib import Path
 from . import OpenAITestGenerator, GenerateTestPlanCommand
+from .executor import Executor
+from .test_sandbox import TestSandbox
+from .test_scope import TestScope
 
 def load_test_oracles(oracle_dir: str) -> list:
     """
@@ -18,6 +21,18 @@ def load_test_oracles(oracle_dir: str) -> list:
     return oracles
 
 def main():
+    # Create an executor using the factory
+    executor = (Executor.create()
+                .with_sandbox(TestSandbox, {
+                    "environment": "test",
+                    "cleanup_enabled": True
+                })
+                .with_scope(TestScope())
+                .build())
+    
+    # Use the executor
+    executor.reset_environment()
+    
     # Load test oracles
     oracle_dir = "test_oracles"
     test_oracles = load_test_oracles(oracle_dir)
