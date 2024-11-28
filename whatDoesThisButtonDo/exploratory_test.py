@@ -28,5 +28,5 @@ class ExploratoryTest:
         """
         Executes the exploratory testing process
         """
-        # TODO: Implement exploratory testing logic
-        pass 
+        result = self.testable_sandbox.start()
+        print(result)

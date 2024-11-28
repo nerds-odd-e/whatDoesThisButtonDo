@@ -25,6 +25,31 @@ class TestableSandbox:
         """Check if this is a valid testable sandbox."""
         return self.testability_dir.is_dir()
 
+    def start(self) -> any:
+        """
+        Loads and executes the start function from the testability directory.
+        
+        Returns:
+            The return value from the start function
+        """
+        import importlib.util
+        import sys
+        
+        # Load the start.py module from testability directory
+        start_path = self.testability_dir / "start.py"
+        if not start_path.is_file():
+            raise FileNotFoundError("start.py not found in testability directory")
+            
+        spec = importlib.util.spec_from_file_location("start", start_path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules["start"] = module
+        spec.loader.exec_module(module)
+        
+        if not hasattr(module, "start"):
+            raise AttributeError("start function not found in start.py")
+            
+        return module.start()
+
     @classmethod
     def create_if_valid(cls, path: Path) -> Optional['TestableSandbox']:
         """
