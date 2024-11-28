@@ -28,5 +28,16 @@ class ExploratoryTest:
         """
         Executes the exploratory testing process
         """
-        result = self.testable_sandbox.start()
-        print(result)
+        possible_next_actions = self.testable_sandbox.start()
+        
+        while possible_next_actions:
+            # Get AI's chosen action and parameters
+            action_choice = self.ai_assistant.get_next_action(possible_next_actions)
+            
+            print(action_choice)
+
+            # Execute the chosen action in the sandbox
+            possible_next_actions = self.testable_sandbox.execute_action(
+                action_choice["action"],
+                action_choice["parameters"]
+            )

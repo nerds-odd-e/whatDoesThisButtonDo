@@ -72,3 +72,61 @@ class TestableSandbox:
         """
         sandbox = cls(path)
         return sandbox if sandbox.is_valid else None 
+
+    def execute_action(self, action_name: str, parameters: dict) -> dict:
+        """
+        Executes the specified action with given parameters from the testability 
+        directory.
+        
+        Args:
+            action_name: Name of the action function to execute
+            parameters: Dictionary of parameters to pass to the action function
+            
+        Returns:
+            A dictionary mapping function names to their documentation for next 
+            possible actions
+        """
+        import importlib.util
+        import sys
+        
+        # Add testability directory to Python path
+        if str(self.testability_dir) not in sys.path:
+            sys.path.insert(0, str(self.testability_dir))
+        
+        # Load the action module from testability directory
+        action_path = self.testability_dir / f"{action_name}.py"
+        if not action_path.is_file():
+            raise FileNotFoundError(
+                f"{action_name}.py not found in testability directory"
+            )
+            
+        # Import the action module
+        spec = importlib.util.spec_from_file_location(action_name, action_path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[action_name] = module
+        spec.loader.exec_module(module)
+        
+        # Get and execute the action function
+        if not hasattr(module, action_name):
+            raise AttributeError(
+                f"Function {action_name} not found in {action_name}.py"
+            )
+            
+        action_func = getattr(module, action_name)
+        result = action_func(**parameters)
+        
+        # Process the next possible actions with better error handling
+        if not isinstance(result, dict):
+            raise ValueError(f"Action function must return a dict, got {type(result)}")
+            
+        if 'actions' not in result:
+            # If no actions field, treat the result itself as the final state
+            return {}  # No more actions available
+            
+        if not result['actions']:
+            return {}  # Empty actions list means no more actions
+            
+        return {
+            func.__name__: {'description': func.__doc__ or ''} 
+            for func in result['actions']
+        }

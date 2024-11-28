@@ -1,6 +1,6 @@
 from typing import List
 
-from . import OpenAITestGenerator, GenerateTestPlanCommand
+from . import OpenAITestGenerator
 from .executor import Executor
 from .test_scope import TestScope
 
@@ -47,33 +47,3 @@ class Application:
         for executor in executors:
             executor.set_ai_assistant(openai_client)
             executor.explore()
-        
-        try:
-            # Generate test cases directly using chat completion
-            test_cases = openai_client.generate_test_cases()
-            
-            # Print generated test cases
-            print("Generated Test Cases:")
-            for i, test_case in enumerate(test_cases, 1):
-                print(f"\nTest Case {i}:")
-                print(test_case)
-            
-            # Generate and print test plan for the first test case
-            if test_cases:
-                print("\nGenerating Test Plan for First Test Case...")
-                test_plan_command = GenerateTestPlanCommand(
-                    openai_client.openai_client,
-                    test_cases[0],
-                    test_scope.get_test_oracles()
-                )
-                test_plan = test_plan_command.execute()
-                print("\nTest Plan:")
-                print(test_plan)
-                
-        except ValueError as e:
-            print(f"Error: {e}")
-            print("Please ensure OPENAI_API_KEY environment variable is set")
-            raise
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            raise 
