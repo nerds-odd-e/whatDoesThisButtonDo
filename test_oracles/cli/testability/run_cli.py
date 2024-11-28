@@ -4,10 +4,16 @@ from io import StringIO
 from contextlib import redirect_stdout, redirect_stderr
 from test_oracles.cli.testability.process_manager import process_manager
 
-def _run_cli(queue):
+def _run_cli(queue, cli_args=None):
     """Run the CLI application in a separate process"""
     # Signal that process has started
     queue.put({"status": "started"})
+    
+    import sys
+    if cli_args is not None:
+        sys.argv = [sys.argv[0]] + cli_args  # Preserve program name and add new args
+    else:
+        sys.argv = [sys.argv[0]]  # Keep only the program name when no args provided
     
     stdout = StringIO()
     stderr = StringIO()
