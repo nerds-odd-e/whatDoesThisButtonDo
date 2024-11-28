@@ -3,7 +3,8 @@ from .get_next_action_command import GetNextActionCommand
 
 class AIExploratoryTestAssistant:
     def __init__(self, test_oracles):
-        self.openai_client = OpenAIClient(test_oracles)
+        self.openai_client = OpenAIClient()
+        self.test_oracles = test_oracles
 
     def get_next_action(self, possible_actions):
         """

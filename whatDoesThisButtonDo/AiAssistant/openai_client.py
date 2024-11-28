@@ -3,11 +3,12 @@ import os
 from openai import OpenAI
 
 class OpenAIClient:
-    def __init__(self):
+    def __init__(self, test_oracles):
         api_key = os.getenv('OPENAI_API_KEY')
         if not api_key:
             raise ValueError("OPENAI_API_KEY environment variable is not set")
         self.client = OpenAI(api_key=api_key)
+        self.test_oracles = test_oracles
         
     def create_chat_completion(
         self, 
