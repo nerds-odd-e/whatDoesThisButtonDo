@@ -1,4 +1,3 @@
-from typing import List, Dict
 import os
 from openai import OpenAI
 
@@ -9,10 +8,17 @@ class OpenAIClient:
             raise ValueError("OPENAI_API_KEY environment variable is not set")
         self.client = OpenAI(api_key=api_key)
         self.test_oracles = test_oracles
+        self.system_message = {
+            "role": "system",
+            "content": (
+                "You are a helpful test explorer. "
+                "Choose actions that will help thoroughly test the system."
+            )
+        }
         
     def create_chat_completion(
         self, 
-        messages: List[Dict[str, str]], 
+        user_message: str,
         model: str = "gpt-3.5-turbo", 
         temperature: float = 0.7
     ) -> str:
@@ -20,7 +26,7 @@ class OpenAIClient:
         Create a chat completion using the OpenAI API
 
         Args:
-            messages: List of message dictionaries with 'role' and 'content' keys
+            user_message: The user's message content as a string
             model: The OpenAI model to use
             temperature: Controls randomness in the response (0.0-1.0)
 
@@ -30,6 +36,11 @@ class OpenAIClient:
         Raises:
             Exception: If there's an error creating the chat completion
         """
+        messages = [
+            self.system_message,
+            {"role": "user", "content": user_message}
+        ]
+        
         try:
             response = self.client.chat.completions.create(
                 model=model,
