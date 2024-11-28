@@ -1,7 +1,13 @@
 import json
+from typing import Dict, Any
+from .openai_client import OpenAIClient
 
 class GetNextActionCommand:
-    def __init__(self, openai_client, possible_actions):
+    def __init__(
+        self,
+        openai_client: OpenAIClient,
+        possible_actions: Dict[str, Dict[str, Any]]
+    ):
         self.openai_client = openai_client
         self.messages = self._create_messages(possible_actions)
     
