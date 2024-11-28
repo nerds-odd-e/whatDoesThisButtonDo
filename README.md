@@ -1,10 +1,22 @@
 # whatDoesThisButtonDo
 
-An open-source AI-powered exploratory testing assistant that helps automate and enhance software testing processes.
+"WhatDoesThisButtonDo" is a general purpose automated exploratory testing tool using AI assistant.
 
-## Description
 
-This project leverages AI capabilities to perform exploratory testing on software applications, helping testers and developers identify potential issues and edge cases more efficiently.
+## Project Goals and Vision**
+
+• This is an open-source project to create a **general-purpose exploratory testing tool augmented by an AI assistant**.
+
+• The primary goals of the tool are:
+
+1\. **Identifying Missing Requirements:** Using exploratory testing to uncover gaps in the application based on provided requirements or test oracles.
+
+2\. **Bug Identification:** Helping users find defects or issues during the testing process.
+
+3\. **Regression Test Discovery:** Identifying test paths that should be repeated later to ensure the stability of the application.
+
+4\. **Efficient Testing:** Supporting a **breadth-first approach** to exploratory testing, prioritizing areas based on time and relevance.
+
 
 ## Prerequisites
 
