@@ -13,17 +13,16 @@ class Application:
     """
     
     def __init__(self):
-        self.executor = self._create_executor()
         self.test_oracles: List[Dict[str, str]] = []
         
-    def _create_executor(self) -> Executor:
+    def _create_executor(self, test_scope: TestScope) -> Executor:
         """Creates and configures the test executor"""
         return (Executor.create()
                 .with_sandbox(TestSandbox, {
                     "environment": "test",
                     "cleanup_enabled": True
                 })
-                .with_scope(TestScope())
+                .with_scope(test_scope)
                 .build())
     
     def run(self, oracle_dir: str) -> None:
@@ -33,11 +32,17 @@ class Application:
         Args:
             oracle_dir: Directory containing test oracle files
         """
-        # Reset environment
-        self.executor.reset_environment()
+        # Create TestScope instance
+        test_scope = TestScope()
         
-        # Load test oracles via TestScope
-        self.test_oracles = self.executor.scope.load_test_oracles(oracle_dir)
+        # Load test oracles
+        self.test_oracles = test_scope.load_test_oracles(oracle_dir)
+        
+        # Create executor with test_scope as a parameter
+        executor = self._create_executor(test_scope)
+        
+        # Update references from self.executor to executor
+        executor.reset_environment()
         
         try:
             # Initialize OpenAI client
