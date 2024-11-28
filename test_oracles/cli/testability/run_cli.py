@@ -2,9 +2,13 @@ from multiprocessing import Process, Queue
 from whatDoesThisButtonDo.cli import CommandLineApplication
 from io import StringIO
 from contextlib import redirect_stdout, redirect_stderr
+from test_oracles.cli.testability.process_manager import process_manager
 
 def _run_cli(queue):
     """Run the CLI application in a separate process"""
+    # Signal that process has started
+    queue.put({"status": "started"})
+    
     stdout = StringIO()
     stderr = StringIO()
     success = True
@@ -20,6 +24,7 @@ def _run_cli(queue):
         success = False
     
     queue.put({
+        "status": "completed",
         "success": success,
         "stdout": stdout.getvalue(),
         "stderr": stderr.getvalue(),
@@ -28,40 +33,32 @@ def _run_cli(queue):
 
 def run_cli():
     """
-    Start the CLI application in a separate process and collect its output.
+    Start the CLI application in a separate process and return immediately.
     
     Returns:
-        Dict containing the command output and execution status
+        Dict containing empty initial state
     """
     queue = Queue()
-    p = None
+    p = Process(target=_run_cli, args=(queue,))
+    p.start()
+    
+    # Wait for process to signal it has started (with timeout)
     try:
-        p = Process(target=_run_cli, args=(queue,))
-        p.start()
-        p.join(timeout=5)  # Add timeout to prevent hanging
-        
-        if p.is_alive():
-            p.terminate()
-            p.join()  # Wait for termination
-            raise TimeoutError("Process took too long to complete")
-            
-        result = queue.get_nowait()  # Non-blocking get
-        return result
-        
+        start_status = queue.get(timeout=10)  # 10 second timeout
+        if start_status.get("status") != "started":
+            raise RuntimeError("Process failed to start properly")
+        process_manager.add_process(p, queue)
     except Exception as e:
-        return {
-            "success": False,
-            "stdout": "",
-            "stderr": str(e),
-            "returncode": -1
-        }
-    finally:
-        # Clean up resources
-        if p and p.is_alive():
-            p.terminate()
-            p.join()
-        queue.close()
-        queue.join_thread()
+        p.terminate()
+        p.join()
+        raise RuntimeError(f"Failed to start CLI process: {str(e)}")
+    
+    return {
+        "success": True,
+        "stdout": "",
+        "stderr": "",
+        "returncode": None  # None indicates process is still running
+    }
 
 if __name__ == "__main__":
     result = run_cli()

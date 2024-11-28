@@ -1,4 +1,5 @@
 from test_oracles.cli.testability.run_cli import run_cli
+from test_oracles.cli.testability.teardown import teardown
 
 def start():
     """
@@ -9,5 +10,5 @@ def start():
     """
     return {
         "status": "ready",
-        "actions": [run_cli]
+        "actions": [run_cli, teardown]
     } 

@@ -134,3 +134,25 @@ class TestableSandbox:
             func.__name__: {'description': func.__doc__ or ''} 
             for func in result['actions']
         }
+
+    def teardown(self) -> None:
+        """
+        Loads and executes the teardown function from the testability directory.
+        """
+        import importlib.util
+        import sys
+        
+        # Load the teardown.py module from testability directory
+        teardown_path = self.testability_dir / "teardown.py"
+        if not teardown_path.is_file():
+            raise FileNotFoundError("teardown.py not found in testability directory")
+            
+        spec = importlib.util.spec_from_file_location("teardown", teardown_path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules["teardown"] = module
+        spec.loader.exec_module(module)
+        
+        if not hasattr(module, "teardown"):
+            raise AttributeError("teardown function not found in teardown.py")
+            
+        module.teardown()
