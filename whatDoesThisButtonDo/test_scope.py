@@ -53,7 +53,7 @@ class TestScope():
         for path in oracle_path.rglob("*"):
             # Try to create a TestableSandbox for each potential directory
             if path.is_dir():
-                sandbox = TestableSandbox.create_if_valid(path, self)
+                sandbox = TestableSandbox.create_if_valid(path)
                 if sandbox:
                     self._testable_sandboxes.append(sandbox)
     
