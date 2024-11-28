@@ -32,9 +32,13 @@ class GetNextActionCommand:
                     "parameters": {
                         "type": "object",
                         "description": "Parameters required for the action"
+                    },
+                    "test_intention": {
+                        "type": "string",
+                        "description": "The purpose of doing this action"
                     }
                 },
-                "required": ["action", "parameters"]
+                "required": ["action", "parameters", "test_intention"]
             }
         }
         
@@ -58,10 +62,6 @@ class GetNextActionCommand:
             "Given these possible actions, choose the next action to take "
             "and specify any required parameters.\n\n"
             f"Available Actions:\n{actions_description}\n\n"
-            "Respond in the following JSON format:\n"
-            "{\n"
-            '    "action": "action_name",\n'
-            '    "parameters": {"param1": "value1", "param2": "value2"}\n'
-            "}"
+            "Respond by making tool call.\n"
         )
     
