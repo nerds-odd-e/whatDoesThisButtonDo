@@ -43,6 +43,10 @@ class ExploratoryTest:
                     action_choice["action"],
                     parameters
                 )
+                
+                # Read and print the current state after the action
+                current_state = self.testable_sandbox.read_state()
+                print("Current state:", current_state)
         finally:
             # Ensure teardown is called even if an exception occurs
             self.testable_sandbox.teardown()

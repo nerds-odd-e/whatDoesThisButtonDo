@@ -156,3 +156,28 @@ class TestableSandbox:
             raise AttributeError("teardown function not found in teardown.py")
             
         module.teardown()
+
+    def read_state(self) -> dict:
+        """
+        Loads and executes the read_state function from the testability directory.
+        
+        Returns:
+            The state dictionary returned by read_state.py
+        """
+        import importlib.util
+        import sys
+        
+        # Load the read_state.py module from testability directory
+        read_state_path = self.testability_dir / "read_state.py"
+        if not read_state_path.is_file():
+            raise FileNotFoundError("read_state.py not found in testability directory")
+        
+        spec = importlib.util.spec_from_file_location("read_state", read_state_path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules["read_state"] = module
+        spec.loader.exec_module(module)
+        
+        if not hasattr(module, "read_state"):
+            raise AttributeError("read_state function not found in read_state.py")
+        
+        return module.read_state()
