@@ -1,8 +1,9 @@
+from typing import List, Dict
 import os
 from openai import OpenAI
 
 class OpenAIClient:
-    def __init__(self, test_oracles):
+    def __init__(self, test_oracles: List[Dict[str, str]]):
         api_key = os.getenv('OPENAI_API_KEY')
         if not api_key:
             raise ValueError("OPENAI_API_KEY environment variable is not set")
@@ -11,8 +12,10 @@ class OpenAIClient:
         self.system_message = {
             "role": "system",
             "content": (
-                "You are a helpful test explorer. "
-                "Choose actions that will help thoroughly test the system."
+                "You are an expert in testing software applications. "
+                "You are given a list of test oracles to help you "
+                "understand the system under test and the expected testing rules. "
+                "There will also be requirements the system must meet. "
             )
         }
         
