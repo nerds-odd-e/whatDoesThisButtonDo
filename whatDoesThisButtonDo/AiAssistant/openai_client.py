@@ -41,6 +41,7 @@ class OpenAIClient:
         """
         messages = [
             self.system_message,
+            {"role": "assistant", "content": self.test_oracles.as_assistant_message()},
             {"role": "user", "content": user_message}
         ]
         

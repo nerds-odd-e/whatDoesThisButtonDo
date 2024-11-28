@@ -26,3 +26,24 @@ class TestOracles:
                     'content': f.read()
                 })
                 
+    def as_assistant_message(self) -> str:
+        """
+        Formats the test oracles into a JSON structure for AI consumption
+        
+        Returns:
+            str: A formatted string containing all test oracle contents as JSON
+        """
+        if not self._oracles:
+            return "No test oracles have been loaded."
+        
+        import json
+        
+        message = "# Test Oracles\n\n"
+        message += "Below is a JSON structure containing all test oracles that define "
+        message += "the testing rules and expectations:\n\n"
+        message += "```json\n"
+        message += json.dumps(self._oracles, indent=2)
+        message += "\n```"
+        
+        return message
+                
