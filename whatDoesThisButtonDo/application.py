@@ -41,7 +41,7 @@ class Application:
         executors = self._create_executors(test_scope)
         
         # Initialize OpenAI client
-        openai_client = OpenAITestGenerator()
+        openai_client = OpenAITestGenerator(self.test_oracles)
         
         # Reset environment and explore with each executor
         for executor in executors:
@@ -50,7 +50,7 @@ class Application:
         
         try:
             # Generate test cases directly using chat completion
-            test_cases = openai_client.generate_test_cases(self.test_oracles)
+            test_cases = openai_client.generate_test_cases()
             
             # Print generated test cases
             print("Generated Test Cases:")
