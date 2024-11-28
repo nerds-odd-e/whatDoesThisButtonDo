@@ -40,14 +40,15 @@ class Application:
         # Create executors for each sandbox
         executors = self._create_executors(test_scope)
         
-        # Reset environment for each executor
+        # Initialize OpenAI client
+        openai_client = OpenAITestGenerator()
+        
+        # Reset environment and explore with each executor
         for executor in executors:
+            executor.set_ai_assistant(openai_client)
             executor.explore()
         
         try:
-            # Initialize OpenAI client
-            openai_client = OpenAITestGenerator()
-            
             # Generate test cases directly using chat completion
             test_cases = openai_client.generate_test_cases(self.test_oracles)
             
