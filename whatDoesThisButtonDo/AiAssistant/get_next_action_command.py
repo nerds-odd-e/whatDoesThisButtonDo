@@ -1,10 +1,9 @@
 import json
-from .chat_completion_command import ChatCompletionCommand
 
-class GetNextActionCommand(ChatCompletionCommand):
+class GetNextActionCommand:
     def __init__(self, openai_client, possible_actions):
-        messages = self._create_messages(possible_actions)
-        super().__init__(openai_client, messages)
+        self.openai_client = openai_client
+        self.messages = self._create_messages(possible_actions)
     
     def execute(self):
         """
@@ -13,7 +12,7 @@ class GetNextActionCommand(ChatCompletionCommand):
         Returns:
             dict: Contains 'action' and 'parameters' keys
         """
-        response = super().execute()
+        response = self.openai_client.create_chat_completion(self.messages)
         try:
             return json.loads(response)
         except json.JSONDecodeError as e:
