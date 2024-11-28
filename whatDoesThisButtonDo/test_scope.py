@@ -27,7 +27,7 @@ class TestScope():
         """
         return self._testable_sandboxes
     
-    def load_test_oracles(self, oracle_dir: str) -> List[Dict[str, str]]:
+    def load_test_oracles(self, oracle_dir: str):
         """
         Load all test oracle markdown files from the specified directory
         
@@ -56,5 +56,12 @@ class TestScope():
                 sandbox = TestableSandbox.create_if_valid(path, self)
                 if sandbox:
                     self._testable_sandboxes.append(sandbox)
+    
+    def get_test_oracles(self) -> List[Dict[str, str]]:
+        """
+        Get the list of loaded test oracles.
         
+        Returns:
+            List of dictionaries containing test oracle name and content
+        """
         return self.test_oracles

@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import List
 
 from . import OpenAITestGenerator, GenerateTestPlanCommand
 from .executor import Executor
@@ -12,7 +12,7 @@ class Application:
     """
     
     def __init__(self):
-        self.test_oracles: List[Dict[str, str]] = []
+        pass  # Remove test_oracles field
         
     def _create_executors(self, test_scope: TestScope) -> List[Executor]:
         """Creates and configures executors for each testable sandbox"""
@@ -35,13 +35,13 @@ class Application:
             oracle_dir: Directory containing test oracle files
         """
         test_scope = TestScope()
-        self.test_oracles = test_scope.load_test_oracles(oracle_dir)
+        test_scope.load_test_oracles(oracle_dir)
         
         # Create executors for each sandbox
         executors = self._create_executors(test_scope)
         
         # Initialize OpenAI client
-        openai_client = OpenAITestGenerator(self.test_oracles)
+        openai_client = OpenAITestGenerator(test_scope.get_test_oracles())
         
         # Reset environment and explore with each executor
         for executor in executors:
@@ -64,7 +64,7 @@ class Application:
                 test_plan_command = GenerateTestPlanCommand(
                     openai_client.openai_client,
                     test_cases[0],
-                    self.test_oracles
+                    test_scope.get_test_oracles()
                 )
                 test_plan = test_plan_command.execute()
                 print("\nTest Plan:")
