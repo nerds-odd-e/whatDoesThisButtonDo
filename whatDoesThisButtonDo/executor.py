@@ -19,7 +19,7 @@ class Executor:
             sandbox: Configured TestSandbox instance
         """
         self.sandbox = sandbox
-        self.current_scope: Optional[TestScope] = None
+        self.scope: Optional[TestScope] = None
         
     @classmethod
     def create(cls) -> 'ExecutorFactory':
@@ -34,7 +34,7 @@ class Executor:
     
     def set_scope(self, scope: TestScope) -> None:
         """Sets the test scope for execution"""
-        self.current_scope = scope
+        self.scope = scope
         
     def reset_environment(self) -> None:
         """Resets the test environment to its initial state"""
@@ -50,7 +50,7 @@ class Executor:
         Returns:
             Dictionary containing the results of the action execution
         """
-        if not self.current_scope:
+        if not self.scope:
             raise ValueError("Test scope must be set before execution")
             
         return self.sandbox.execute(action)

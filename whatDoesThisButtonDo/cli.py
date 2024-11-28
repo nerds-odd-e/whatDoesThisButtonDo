@@ -18,4 +18,6 @@ class CommandLineApplication:
             app = Application()
             app.run(args.oracle_dir)
         except Exception:
+            import traceback
+            traceback.print_exc()
             exit(1) 

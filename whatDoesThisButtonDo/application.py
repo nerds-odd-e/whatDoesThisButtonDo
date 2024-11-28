@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Dict, List
 
 from . import OpenAITestGenerator, GenerateTestPlanCommand
@@ -27,23 +26,6 @@ class Application:
                 .with_scope(TestScope())
                 .build())
     
-    def load_test_oracles(self, oracle_dir: str) -> None:
-        """
-        Load all test oracle markdown files from the specified directory
-        
-        Args:
-            oracle_dir: Path to the directory containing test oracle files
-        """
-        oracle_path = Path(oracle_dir)
-        
-        self.test_oracles = []
-        for file in oracle_path.glob("*.md"):
-            with open(file, 'r') as f:
-                self.test_oracles.append({
-                    'name': file.name,
-                    'content': f.read()
-                })
-    
     def run(self, oracle_dir: str) -> None:
         """
         Main execution flow of the application
@@ -54,8 +36,8 @@ class Application:
         # Reset environment
         self.executor.reset_environment()
         
-        # Load test oracles
-        self.load_test_oracles(oracle_dir)
+        # Load test oracles via TestScope
+        self.test_oracles = self.executor.scope.load_test_oracles(oracle_dir)
         
         try:
             # Initialize OpenAI client
