@@ -1,0 +1,2 @@
+mkdir whatDoesThisButtonDo/AiAssistant
+touch whatDoesThisButtonDo/AiAssistant/__init__.py 

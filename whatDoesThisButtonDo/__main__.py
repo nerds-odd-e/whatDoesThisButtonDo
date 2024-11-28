@@ -1,6 +1,5 @@
 from pathlib import Path
-from .openai_test_generator import OpenAITestGenerator
-from .generate_test_plan_command import GenerateTestPlanCommand
+from . import OpenAITestGenerator, GenerateTestPlanCommand
 
 def load_test_oracles(oracle_dir: str) -> list:
     """
