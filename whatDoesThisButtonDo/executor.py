@@ -2,7 +2,9 @@ from typing import Any, Dict, TYPE_CHECKING
 
 from whatDoesThisButtonDo.testable_sandbox import TestableSandbox
 from .exploratory_test import ExploratoryTest
-from whatDoesThisButtonDo.AiAssistant.openai_test_generator import OpenAITestGenerator
+from whatDoesThisButtonDo.AiAssistant.ai_exploratory_test_assistant import (
+    AIExploratoryTestAssistant
+)
 
 if TYPE_CHECKING:
     from .executor_factory import ExecutorFactory
@@ -17,7 +19,7 @@ class Executor:
         self, 
         testable_sandbox: TestableSandbox, 
         config: Dict[str, Any],
-        ai_assistant: OpenAITestGenerator
+        ai_assistant: AIExploratoryTestAssistant
     ):
         """
         Initialize Executor with a testable sandbox and AI assistant.

@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 from .testable_sandbox import TestableSandbox
 
 if TYPE_CHECKING:
-    from . import OpenAITestGenerator
+    from . import AIExploratoryTestAssistant
 
 class ExploratoryTest:
     """
@@ -12,7 +12,7 @@ class ExploratoryTest:
     def __init__(
         self, 
         testable_sandbox: TestableSandbox, 
-        ai_assistant: 'OpenAITestGenerator'
+        ai_assistant: 'AIExploratoryTestAssistant'
     ):
         """
         Initialize ExploratoryTest with a sandbox and AI assistant

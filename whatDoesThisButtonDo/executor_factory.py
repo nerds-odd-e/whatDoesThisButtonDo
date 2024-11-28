@@ -1,6 +1,8 @@
 from typing import Any, Dict
 
-from whatDoesThisButtonDo.AiAssistant.openai_test_generator import OpenAITestGenerator
+from whatDoesThisButtonDo.AiAssistant.ai_exploratory_test_assistant import (
+    AIExploratoryTestAssistant
+)
 from whatDoesThisButtonDo.testable_sandbox import TestableSandbox
 from .executor import Executor
 
@@ -32,7 +34,10 @@ class ExecutorFactory:
         self._sandbox_config = config or {}
         return self
         
-    def with_ai_assistant(self, ai_assistant: OpenAITestGenerator) -> 'ExecutorFactory':
+    def with_ai_assistant(
+        self, 
+        ai_assistant: AIExploratoryTestAssistant
+    ) -> 'ExecutorFactory':
         """
         Configures the AI assistant for test generation.
         

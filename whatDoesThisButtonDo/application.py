@@ -1,4 +1,4 @@
-from . import OpenAITestGenerator
+from . import AIExploratoryTestAssistant
 from .executor import Executor
 from .test_scope import TestScope
 
@@ -23,7 +23,7 @@ class Application:
         test_scope.load_test_oracles(oracle_dir)
         
         # Initialize OpenAI client
-        openai_client = OpenAITestGenerator(test_scope.get_test_oracles())
+        openai_client = AIExploratoryTestAssistant(test_scope.get_test_oracles())
         
         # Create and run executors for each sandbox
         for sandbox in test_scope.get_testable_sandboxes():
