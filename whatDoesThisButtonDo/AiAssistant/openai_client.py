@@ -1,9 +1,9 @@
-from typing import List, Dict
 import os
 from openai import OpenAI
+from ..test_oracles import TestOracles
 
 class OpenAIClient:
-    def __init__(self, test_oracles: List[Dict[str, str]]):
+    def __init__(self, test_oracles: TestOracles):
         api_key = os.getenv('OPENAI_API_KEY')
         if not api_key:
             raise ValueError("OPENAI_API_KEY environment variable is not set")

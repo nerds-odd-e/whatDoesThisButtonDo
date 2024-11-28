@@ -10,7 +10,7 @@ class Application:
     """
     
     def __init__(self):
-        pass  # Remove test_oracles field
+        pass
         
     def run(self, oracle_dir: str) -> None:
         """
@@ -22,7 +22,7 @@ class Application:
         test_scope = TestScope()
         test_scope.load_test_oracles(oracle_dir)
         
-        # Initialize OpenAI client
+        # Initialize OpenAI client with test oracles
         openai_client = AIExploratoryTestAssistant(test_scope.get_test_oracles())
         
         # Create and run executors for each sandbox

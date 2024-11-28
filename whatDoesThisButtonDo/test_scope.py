@@ -1,6 +1,7 @@
-from typing import Dict, List
+from typing import List
 from pathlib import Path
 from .testable_sandbox import TestableSandbox
+from .test_oracles import TestOracles
 
 class TestScope():
     """
@@ -11,11 +12,8 @@ class TestScope():
     def __init__(self):
         """
         Initialize the test scope with configuration.
-        
-        Args:
-            **kwargs: Configuration parameters for the scope
         """
-        self.test_oracles: List[Dict[str, str]] = []
+        self.test_oracles = TestOracles()
         self._testable_sandboxes: List[TestableSandbox] = []
     
     def get_testable_sandboxes(self) -> List[TestableSandbox]:
@@ -33,19 +31,9 @@ class TestScope():
         
         Args:
             oracle_dir: Path to the directory containing test oracle files
-            
-        Returns:
-            List of dictionaries containing test oracle name and content
         """
         oracle_path = Path(oracle_dir)
-        
-        self.test_oracles = []
-        for file in oracle_path.glob("*.md"):
-            with open(file, 'r') as f:
-                self.test_oracles.append({
-                    'name': file.name,
-                    'content': f.read()
-                })
+        self.test_oracles.load_from_directory(oracle_dir)
         
         self._testable_sandboxes = []
         
@@ -57,11 +45,11 @@ class TestScope():
                 if sandbox:
                     self._testable_sandboxes.append(sandbox)
     
-    def get_test_oracles(self) -> List[Dict[str, str]]:
+    def get_test_oracles(self) -> TestOracles:
         """
-        Get the list of loaded test oracles.
+        Get the test oracles object.
         
         Returns:
-            List of dictionaries containing test oracle name and content
+            TestOracles instance
         """
         return self.test_oracles
