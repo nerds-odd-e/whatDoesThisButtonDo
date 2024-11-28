@@ -1,5 +1,6 @@
 from typing import Dict, List
 from pathlib import Path
+from .testable_sandbox import TestableSandbox
 
 class TestScope():
     """
@@ -15,14 +16,14 @@ class TestScope():
             **kwargs: Configuration parameters for the scope
         """
         self.test_oracles: List[Dict[str, str]] = []
-        self._testable_sandboxes: List[Path] = []
+        self._testable_sandboxes: List[TestableSandbox] = []
     
-    def get_testable_sandboxes(self) -> List[Path]:
+    def get_testable_sandboxes(self) -> List[TestableSandbox]:
         """
-        Get the list of folders that contain a testability subfolder.
+        Get the list of testable sandboxes.
         
         Returns:
-            List of Path objects representing folders containing testability subfolders
+            List of TestableSandbox objects
         """
         return self._testable_sandboxes
     
@@ -50,8 +51,10 @@ class TestScope():
         
         # Walk through all subdirectories
         for path in oracle_path.rglob("*"):
-            # Check for testability folders
-            if path.is_dir() and path.name == "testability":
-                self._testable_sandboxes.append(path.parent)
+            # Try to create a TestableSandbox for each potential directory
+            if path.is_dir():
+                sandbox = TestableSandbox.create_if_valid(path, self)
+                if sandbox:
+                    self._testable_sandboxes.append(sandbox)
         
         return self.test_oracles
