@@ -37,7 +37,8 @@ class ExploratoryTest:
             print(action_choice)
 
             # Execute the chosen action in the sandbox
+            parameters = action_choice.get("parameters", None)
             possible_next_actions = self.testable_sandbox.execute_action(
                 action_choice["action"],
-                action_choice["parameters"]
+                parameters
             )

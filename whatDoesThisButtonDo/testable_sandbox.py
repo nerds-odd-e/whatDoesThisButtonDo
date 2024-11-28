@@ -73,14 +73,18 @@ class TestableSandbox:
         sandbox = cls(path)
         return sandbox if sandbox.is_valid else None 
 
-    def execute_action(self, action_name: str, parameters: dict) -> dict:
+    def execute_action(
+        self, 
+        action_name: str, 
+        parameters: Optional[dict] = None
+    ) -> dict:
         """
         Executes the specified action with given parameters from the testability 
         directory.
         
         Args:
             action_name: Name of the action function to execute
-            parameters: Dictionary of parameters to pass to the action function
+            parameters: Optional dictionary of parameters to pass to the action function
             
         Returns:
             A dictionary mapping function names to their documentation for next 
@@ -113,7 +117,7 @@ class TestableSandbox:
             )
             
         action_func = getattr(module, action_name)
-        result = action_func(**parameters)
+        result = action_func(**(parameters or {}))
         
         # Process the next possible actions with better error handling
         if not isinstance(result, dict):

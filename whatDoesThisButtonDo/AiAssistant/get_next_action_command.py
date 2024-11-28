@@ -18,7 +18,31 @@ class GetNextActionCommand:
         Returns:
             dict: Contains 'action' and 'parameters' keys
         """
-        response = self.openai_client.create_chat_completion(self.messages)
+        # Create function schema for the action selection
+        function_schema = {
+            "name": "select_next_action",
+            "description": "Select the next action to take from the available options",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "description": "The name of the action to take"
+                    },
+                    "parameters": {
+                        "type": "object",
+                        "description": "Parameters required for the action"
+                    }
+                },
+                "required": ["action", "parameters"]
+            }
+        }
+        
+        response = self.openai_client.create_chat_completion(
+            self.messages,
+            function_schema=function_schema
+        )
+        
         try:
             return json.loads(response)
         except json.JSONDecodeError as e:
