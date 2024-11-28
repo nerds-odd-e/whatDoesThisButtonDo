@@ -33,27 +33,6 @@ class Executor:
         from .executor_factory import ExecutorFactory
         return ExecutorFactory()
     
-    def reset_environment(self) -> None:
-        """Resets the test environment to its initial state"""
-        # Implementation will depend on how you want to reset the testable sandbox
+    def explore(self) -> None:
         pass
         
-    def execute_action(self, action: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Executes a single test action in the sandbox environment.
-        
-        Args:
-            action: Dictionary containing action details and parameters
-            
-        Returns:
-            Dictionary containing the results of the action execution
-        """
-        # Implementation will depend on how you want to execute actions
-        # in the testable sandbox
-        pass
-    
-    def get_current_state(self) -> Dict[str, Any]:
-        """Returns the current state of the application under test"""
-        # Implementation will depend on how you want to get state
-        # from the testable sandbox
-        pass

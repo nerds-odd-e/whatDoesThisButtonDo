@@ -42,7 +42,7 @@ class Application:
         
         # Reset environment for each executor
         for executor in executors:
-            executor.reset_environment()
+            executor.explore()
         
         try:
             # Initialize OpenAI client
