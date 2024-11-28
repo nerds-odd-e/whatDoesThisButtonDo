@@ -25,12 +25,12 @@ class TestableSandbox:
         """Check if this is a valid testable sandbox."""
         return self.testability_dir.is_dir()
 
-    def start(self) -> any:
+    def start(self) -> dict:
         """
         Loads and executes the start function from the testability directory.
         
         Returns:
-            The return value from the start function
+            A dictionary mapping function names to their documentation
         """
         import importlib.util
         import sys
@@ -48,7 +48,16 @@ class TestableSandbox:
         if not hasattr(module, "start"):
             raise AttributeError("start function not found in start.py")
             
-        return module.start()
+        result = module.start()
+        
+        # Process the actions list into a dictionary of function documentation
+        if not isinstance(result, dict) or 'actions' not in result:
+            raise ValueError("start() must return a dict with 'actions' field")
+            
+        return {
+            func.__name__: {'description': func.__doc__ or ''} 
+            for func in result['actions']
+        }
 
     @classmethod
     def create_if_valid(cls, path: Path) -> Optional['TestableSandbox']:

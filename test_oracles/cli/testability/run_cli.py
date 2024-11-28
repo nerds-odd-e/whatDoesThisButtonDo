@@ -3,7 +3,7 @@ from whatDoesThisButtonDo.cli import CommandLineApplication
 from io import StringIO
 from contextlib import redirect_stdout, redirect_stderr
 
-def run_cli(queue):
+def _run_cli(queue):
     """Run the CLI application in a separate process"""
     stdout = StringIO()
     stderr = StringIO()
@@ -27,17 +27,16 @@ def run_cli(queue):
         "returncode": 0 if success else 1
     })
 
-def run_cli_and_collect_output():
+def run_cli():
     """
-    Initialize the application state for testing by running the CommandLineApplication
-    in a separate process and collecting its output.
+    Start the CLI application in a separate process and collect its output.
     
     Returns:
         Dict containing the command output and execution status
     """
     try:
         queue = Queue()
-        p = Process(target=run_cli, args=(queue,))
+        p = Process(target=_run_cli, args=(queue,))
         p.start()
         p.join(timeout=5)  # Add timeout to prevent hanging
         
@@ -57,7 +56,7 @@ def run_cli_and_collect_output():
         }
 
 if __name__ == "__main__":
-    result = run_cli_and_collect_output()
+    result = run_cli()
     print("Execution Results:")
     print(f"Success: {result['success']}")
     print(f"Return Code: {result['returncode']}")

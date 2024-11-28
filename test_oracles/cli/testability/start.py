@@ -1,4 +1,4 @@
-from test_oracles.cli.testability.run_cli import run_cli_and_collect_output
+from test_oracles.cli.testability.run_cli import run_cli
 
 def start():
     """
@@ -9,5 +9,5 @@ def start():
     """
     return {
         "status": "ready",
-        "actions": [run_cli_and_collect_output]
+        "actions": [run_cli]
     } 
