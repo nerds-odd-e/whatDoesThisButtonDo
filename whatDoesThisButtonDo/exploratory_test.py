@@ -35,7 +35,7 @@ class ExploratoryTest:
             possible_next_actions = self.testable_sandbox.start()
             current_state = {"status": "started"}
             
-            while possible_next_actions:
+            while True:
                 # Get AI's chosen action and parameters using the thread
                 function_name, action_choice = ai_thread.get_next_action(
                     possible_next_actions,
