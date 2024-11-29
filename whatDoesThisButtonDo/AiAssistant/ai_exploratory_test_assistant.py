@@ -9,15 +9,17 @@ class AIExploratoryTestAssistant:
             model=model
         )
 
-    def get_next_action(self, possible_actions):
+    def get_next_action(self, possible_actions, sut_state):
         """
         Get the AI's choice for the next action to take
         
         Args:
             possible_actions: List of possible actions with their descriptions
+            sut_state: Current state of the system under test
             
         Returns:
-            dict: Contains 'action' name and 'parameters' for the chosen action
+            dict: Contains 'action' name and 'parameters' for the chosen action,
+                 or None to indicate testing should stop
         """
         command = GetNextActionCommand(self.openai_client, possible_actions)
         response = command.execute()

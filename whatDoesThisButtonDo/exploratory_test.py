@@ -30,10 +30,18 @@ class ExploratoryTest:
         """
         try:
             possible_next_actions = self.testable_sandbox.start()
+            current_state = {"status": "started"}
             
             while possible_next_actions:
                 # Get AI's chosen action and parameters
-                action_choice = self.ai_assistant.get_next_action(possible_next_actions)
+                action_choice = self.ai_assistant.get_next_action(
+                    possible_next_actions,
+                    current_state
+                )
+                
+                # If AI decides to stop testing, break the loop
+                if action_choice is None:
+                    break
                 
                 print(action_choice)
 
