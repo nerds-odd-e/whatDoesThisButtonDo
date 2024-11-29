@@ -27,7 +27,8 @@ class ExploratoryTest:
             "title": "start cli with no parameter should receive helpful message",
             "description": (
                 "Verify that when the CLI is started without any parameters, "
-                "it displays a helpful message to guide the user."
+                "it displays a helpful message to remind the user that a "
+                "oracle_dir is required."
             )
         }
         
