@@ -21,7 +21,7 @@ class OpenAIClient:
     def create_chat_completion(
         self, 
         messages: list,
-        function_schema: dict = None,
+        function_schema: list = None,
         action_history: list = None
     ) -> dict:
         """
@@ -59,22 +59,24 @@ class OpenAIClient:
         chat_messages.extend(messages)
         
         try:
-            # Add tools if function schema is provided
+            # Add tools if function schemas are provided
             kwargs = {
                 "model": self.model,
                 "messages": chat_messages,
             }
             
             if function_schema:
-                kwargs["tools"] = [{
-                    "type": "function",
-                    "function": function_schema
-                }]
-                tool_choice = {
-                    "type": "function",
-                    "function": {"name": function_schema["name"]}
-                }
-                kwargs["tool_choice"] = tool_choice
+                kwargs["tools"] = [
+                    {"type": "function", "function": schema}
+                    for schema in function_schema
+                ]
+                # If there's only one schema, force its use
+                if len(function_schema) == 1:
+                    tool_choice = {
+                        "type": "function",
+                        "function": {"name": function_schema[0]["name"]}
+                    }
+                    kwargs["tool_choice"] = tool_choice
                 
             response = self.client.chat.completions.create(**kwargs)
             

@@ -22,7 +22,7 @@ class GetNextActionCommand:
             tuple: (function_name, dict with 'action' and 'parameters' keys)
         """
         # Create function schema for the action selection
-        function_schema = {
+        function_schemas = [{
             "name": "select_next_action",
             "description": "Select the next action to take from the available options",
             "parameters": {
@@ -43,11 +43,11 @@ class GetNextActionCommand:
                 },
                 "required": ["action", "parameters", "test_intention"]
             }
-        }
+        }]
         
         response = self.openai_client.create_chat_completion(
             self.messages,
-            function_schema=function_schema,
+            function_schema=function_schemas,
             action_history=self.action_history
         )
         
