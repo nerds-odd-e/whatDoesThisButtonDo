@@ -27,7 +27,7 @@ class Application:
         openai_client = AIExploratoryTestAssistant(
             test_oracles=test_scope.get_test_oracles(),
             api_key=os.getenv('OPENAI_API_KEY'),
-            model="gpt-4-turbo-preview"
+            model="gpt-4o-mini"
         )
         
         # Create and run executors for each sandbox
