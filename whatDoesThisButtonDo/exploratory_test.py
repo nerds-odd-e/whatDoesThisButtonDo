@@ -41,7 +41,11 @@ class ExploratoryTest:
             ai_thread = self.ai_assistant.create_test_execution_thread(self.goal)
             
             possible_next_actions = self.testable_sandbox.start()
-            current_state = {"status": "started"}
+            current_state = {
+                "status": "started",
+                "message_to_ai": "Please select the first action."
+            }
+            
             step_count = 0
             max_steps = 100
             

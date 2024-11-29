@@ -119,7 +119,7 @@ class GetNextActionCommand:
         actions_description = "\n".join(
             f"- {action_name}: {action_info['description']}" 
             for action_name, action_info in possible_actions.items()
-        )
+        ) or "No actions available in current state"
         
         if sut_state:
             self.openai_client.append_message(
@@ -128,17 +128,26 @@ class GetNextActionCommand:
             )
         
         message = (
-            "Given these possible actions, you can:\n"
-            "1. Make assertions about the current state using "
-            "assertion_for_regression\n"
-            "2. Choose the next action using select_next_action\n"
-            "3. End the test using test_done\n\n"
-            f"Available Actions:\n{actions_description}\n\n"
-            "Available Assertions:\n"
+            "At this state in the test, you have:\n"
+            f"# Available Actions:\n{actions_description}\n\n"
+            "# Available Assertions:\n"
             "- assert_current_state_matches_regex: Verify state matches a "
             "regex pattern\n\n"
-            "Important: Make only one function call at a time. Consider making "
-            "assertions before proceeding with actions or ending the test.\n"
+            "Given these available actions and assertions, you can:\n"
+            "1. Make assertions about the current state using "
+            "assertion_for_regression\n"
+            "2. Choose the next action using select_next_action "
+            "(ONLY from the Available Actions list above)\n"
+            "3. End the test using test_done\n\n"
+            "Important: Make only one function call at a time. "
+            "The next action MUST be chosen from "
+            "the Available Actions list above - if no actions are available, "
+            "you can only make assertions or call test_done. "
+            "Add assertions only when they provide meaningful "
+            "validation of critical application state - avoid assertions "
+            "that are too sensitive to unrelated changes or when the test "
+            "has just started. "
+            "Don't repeat the last assertion. "
             "Call test_done if you spot any errors, consider the test goal "
             "is achieved, or if there are no possible actions available.\n"
         )
