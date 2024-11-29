@@ -2,8 +2,12 @@ from .openai_client import OpenAIClient
 from .get_next_action_command import GetNextActionCommand
 
 class AIExploratoryTestAssistant:
-    def __init__(self, test_oracles):
-        self.openai_client = OpenAIClient(test_oracles)
+    def __init__(self, test_oracles, api_key: str, model: str):
+        self.openai_client = OpenAIClient(
+            test_oracles=test_oracles,
+            api_key=api_key,
+            model=model
+        )
 
     def get_next_action(self, possible_actions):
         """

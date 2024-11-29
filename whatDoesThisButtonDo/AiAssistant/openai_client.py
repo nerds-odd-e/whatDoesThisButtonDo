@@ -1,14 +1,13 @@
-import os
 from openai import OpenAI
 from ..test_oracles import TestOracles
 
 class OpenAIClient:
-    def __init__(self, test_oracles: TestOracles):
-        api_key = os.getenv('OPENAI_API_KEY')
+    def __init__(self, test_oracles: TestOracles, api_key: str, model: str):
         if not api_key:
-            raise ValueError("OPENAI_API_KEY environment variable is not set")
+            raise ValueError("API key cannot be empty")
         self.client = OpenAI(api_key=api_key)
         self.test_oracles = test_oracles
+        self.model = model
         self.system_message = {
             "role": "system",
             "content": (
@@ -23,8 +22,6 @@ class OpenAIClient:
         self, 
         user_message: str,
         function_schema: dict = None,
-        model: str = "gpt-3.5-turbo", 
-        temperature: float = 0.7
     ) -> str:
         """
         Create a chat completion using the OpenAI API with function calling
@@ -32,8 +29,6 @@ class OpenAIClient:
         Args:
             user_message: The user's message content as a string
             function_schema: Optional function definition for tool calling
-            model: The OpenAI model to use
-            temperature: Controls randomness in the response (0.0-1.0)
 
         Returns:
             str: The function call arguments as a JSON string
@@ -50,9 +45,8 @@ class OpenAIClient:
         try:
             # Add tools if function schema is provided
             kwargs = {
-                "model": model,
+                "model": self.model,
                 "messages": messages,
-                "temperature": temperature
             }
             
             if function_schema:
