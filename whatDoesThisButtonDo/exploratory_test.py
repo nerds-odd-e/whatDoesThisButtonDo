@@ -29,12 +29,15 @@ class ExploratoryTest:
         Executes the exploratory testing process
         """
         try:
+            # Create an AI assistant thread for this test execution
+            ai_thread = self.ai_assistant.create_thread()
+            
             possible_next_actions = self.testable_sandbox.start()
             current_state = {"status": "started"}
             
             while possible_next_actions:
-                # Get AI's chosen action and parameters
-                action_choice = self.ai_assistant.get_next_action(
+                # Get AI's chosen action and parameters using the thread
+                action_choice = ai_thread.get_next_action(
                     possible_next_actions,
                     current_state
                 )

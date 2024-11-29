@@ -1,26 +1,20 @@
-from .openai_client import OpenAIClient
-from .get_next_action_command import GetNextActionCommand
 
 class AIExploratoryTestAssistant:
     def __init__(self, test_oracles, api_key: str, model: str):
-        self.openai_client = OpenAIClient(
-            test_oracles=test_oracles,
-            api_key=api_key,
-            model=model
-        )
+        self.test_oracles = test_oracles
+        self.api_key = api_key
+        self.model = model
 
-    def get_next_action(self, possible_actions, sut_state):
+    def create_thread(self):
         """
-        Get the AI's choice for the next action to take
+        Creates a new AI assistant thread for handling test interactions
         
-        Args:
-            possible_actions: List of possible actions with their descriptions
-            sut_state: Current state of the system under test
-            
         Returns:
-            dict: Contains 'action' name and 'parameters' for the chosen action,
-                 or None to indicate testing should stop
+            AIAssistantThread: A new thread instance for test execution
         """
-        command = GetNextActionCommand(self.openai_client, possible_actions)
-        response = command.execute()
-        return response 
+        from .ai_assistant_thread import AIAssistantThread
+        return AIAssistantThread(
+            test_oracles=self.test_oracles,
+            api_key=self.api_key,
+            model=self.model
+        ) 
