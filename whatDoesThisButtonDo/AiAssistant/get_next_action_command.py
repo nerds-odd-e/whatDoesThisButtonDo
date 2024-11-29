@@ -11,7 +11,8 @@ class GetNextActionCommand:
         sut_state=None
     ):
         self.openai_client = openai_client
-        self.messages = self._create_messages(possible_actions, sut_state)
+        self.possible_actions = possible_actions
+        self.sut_state = sut_state
         self.action_history = action_history or []
     
     def execute(self):
@@ -21,7 +22,8 @@ class GetNextActionCommand:
         Returns:
             tuple: (function_name, dict with 'action' and 'parameters' keys)
         """
-        # Create function schema for the action selection
+        self._create_messages(self.possible_actions, self.sut_state)
+        
         function_schemas = [{
             "name": "select_next_action",
             "description": "Select the next action to take from the available options",
@@ -67,7 +69,6 @@ class GetNextActionCommand:
         }]
         
         response = self.openai_client.create_chat_completion(
-            self.messages,
             function_schema=function_schemas,
             action_history=self.action_history
         )
@@ -87,26 +88,22 @@ class GetNextActionCommand:
             for action_name, action_info in possible_actions.items()
         )
         
-        messages = []
-        
         if sut_state:
-            messages.append({
-                "role": "system",
-                "content": f"Current system state:\n{json.dumps(sut_state, indent=2)}"
-            })
-        
-        messages.append({
-            "role": "user",
-            "content": (
-                "Given these possible actions, choose the next action to take "
-                "and specify any required parameters.\n\n"
-                f"Available Actions:\n{actions_description}\n\n"
-                "Call test_done if you spot any errors, consider the test goal "
-                "is achieved, or if there are no possible actions available. "
-                "Otherwise, respond by selecting the next action using "
-                "select_next_action.\n"
+            self.openai_client.append_message(
+                "system",
+                f"Current system state:\n{json.dumps(sut_state, indent=2)}"
             )
-        })
         
-        return messages
+        self.openai_client.append_message(
+            "user",
+            "Given these possible actions, choose the next action to take "
+            "and specify any required parameters.\n\n"
+            f"Available Actions:\n{actions_description}\n\n"
+            "Call test_done if you spot any errors, consider the test goal "
+            "is achieved, or if there are no possible actions available. "
+            "Otherwise, respond by selecting the next action using "
+            "select_next_action.\n"
+        )
+        
+        return []  # Return empty list since messages are handled by OpenAIClient
     

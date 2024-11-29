@@ -23,6 +23,13 @@ class ExploratoryTest:
         """
         self.testable_sandbox = testable_sandbox
         self.ai_assistant = ai_assistant
+        self.goal = {
+            "title": "start cli with no parameter should receive helpful message",
+            "description": (
+                "Verify that when the CLI is started without any parameters, "
+                "it displays a helpful message to guide the user."
+            )
+        }
         
     def execute(self) -> None:
         """
@@ -30,7 +37,7 @@ class ExploratoryTest:
         """
         try:
             # Create an AI assistant thread for this test execution
-            ai_thread = self.ai_assistant.create_thread()
+            ai_thread = self.ai_assistant.create_thread(self.goal)
             
             possible_next_actions = self.testable_sandbox.start()
             current_state = {"status": "started"}

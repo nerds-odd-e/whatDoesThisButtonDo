@@ -6,9 +6,8 @@ class OpenAIClient:
         if not api_key:
             raise ValueError("API key cannot be empty")
         self.client = OpenAI(api_key=api_key)
-        self.test_oracles = test_oracles
         self.model = model
-        self.system_message = {
+        self.messages = [{
             "role": "system",
             "content": (
                 "You are an expert in testing software applications. "
@@ -16,11 +15,16 @@ class OpenAIClient:
                 "understand the system under test and the expected testing rules. "
                 "There will also be requirements the system must meet. "
             )
-        }
-        
+        }]
+        # Add test oracles message
+        self.append_message("assistant", test_oracles.as_assistant_message())
+
+    def append_message(self, role: str, content: str):
+        """Add a new message to the conversation history"""
+        self.messages.append({"role": role, "content": content})
+
     def create_chat_completion(
         self, 
-        messages: list,
         function_schema: list = None,
         action_history: list = None
     ) -> dict:
@@ -28,7 +32,6 @@ class OpenAIClient:
         Create a chat completion using the OpenAI API with function calling
 
         Args:
-            messages: List of message objects with role and content
             function_schema: Optional function definition for tool calling
             action_history: List of previous actions and their results
 
@@ -36,12 +39,9 @@ class OpenAIClient:
             dict: The function call arguments as a JSON string
 
         Raises:
-            Exception: If there's an error creating the chat completion
+            Exception: If there's an error creating chat completion
         """
-        chat_messages = [
-            self.system_message,
-            {"role": "assistant", "content": self.test_oracles.as_assistant_message()},
-        ]
+        chat_messages = self.messages.copy()
         
         # Add function messages for action history
         if action_history:
@@ -55,11 +55,7 @@ class OpenAIClient:
                     })
                 })
         
-        # Add the provided messages
-        chat_messages.extend(messages)
-        
         try:
-            # Add tools if function schemas are provided
             kwargs = {
                 "model": self.model,
                 "messages": chat_messages,
@@ -70,7 +66,6 @@ class OpenAIClient:
                     {"type": "function", "function": schema}
                     for schema in function_schema
                 ]
-                # If there's only one schema, force its use
                 if len(function_schema) == 1:
                     tool_choice = {
                         "type": "function",
@@ -80,7 +75,6 @@ class OpenAIClient:
                 
             response = self.client.chat.completions.create(**kwargs)
             
-            # Handle function calling response
             if function_schema and response.choices[0].message.tool_calls:
                 tool_call = response.choices[0].message.tool_calls[0]
                 return {

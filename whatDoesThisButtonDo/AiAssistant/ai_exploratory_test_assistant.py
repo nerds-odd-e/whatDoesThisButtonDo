@@ -1,13 +1,15 @@
-
 class AIExploratoryTestAssistant:
     def __init__(self, test_oracles, api_key: str, model: str):
         self.test_oracles = test_oracles
         self.api_key = api_key
         self.model = model
 
-    def create_thread(self):
+    def create_thread(self, goal=None):
         """
         Creates a new AI assistant thread for handling test interactions
+        
+        Args:
+            goal: Dictionary containing test goal information
         
         Returns:
             AIAssistantThread: A new thread instance for test execution
@@ -16,5 +18,6 @@ class AIExploratoryTestAssistant:
         return AIAssistantThread(
             test_oracles=self.test_oracles,
             api_key=self.api_key,
-            model=self.model
+            model=self.model,
+            goal=goal
         ) 
