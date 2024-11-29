@@ -1,5 +1,5 @@
 from . import AIExploratoryTestAssistant
-from .executor import Explorer
+from .explorer import Explorer
 from .test_scope import TestScope
 import os
 
