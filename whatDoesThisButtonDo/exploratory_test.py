@@ -42,6 +42,12 @@ class ExploratoryTest:
                     current_state
                 )
                 
+                # Handle test_done function
+                if function_name == "test_done":
+                    print(f"Test completed - Result: {action_choice['result']}")
+                    print(f"Conclusion: {action_choice['conclusion']}")
+                    break
+                
                 # If AI decides to stop testing, break the loop
                 if action_choice is None:
                     break

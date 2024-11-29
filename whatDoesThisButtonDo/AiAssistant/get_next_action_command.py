@@ -43,6 +43,27 @@ class GetNextActionCommand:
                 },
                 "required": ["action", "parameters", "test_intention"]
             }
+        }, {
+            "name": "test_done",
+            "description": (
+                "Call this when the test should end, either due to success "
+                "or failure"
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "type": "string",
+                        "enum": ["successful", "failed"],
+                        "description": "Whether the test passed or failed"
+                    },
+                    "conclusion": {
+                        "type": "string",
+                        "description": "Explanation of why the test ended"
+                    }
+                },
+                "required": ["result", "conclusion"]
+            }
         }]
         
         response = self.openai_client.create_chat_completion(
@@ -80,7 +101,10 @@ class GetNextActionCommand:
                 "Given these possible actions, choose the next action to take "
                 "and specify any required parameters.\n\n"
                 f"Available Actions:\n{actions_description}\n\n"
-                "Respond by making tool call.\n"
+                "Call test_done if you spot any errors, consider the test goal "
+                "is achieved, or if there are no possible actions available. "
+                "Otherwise, respond by selecting the next action using "
+                "select_next_action.\n"
             )
         })
         
