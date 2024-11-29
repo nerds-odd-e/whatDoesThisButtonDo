@@ -80,6 +80,12 @@ class ExploratoryTest:
                 parameters = action_choice.get("parameters", None)
                 
                 if ai_tool_call_name == "assertion_for_regression":
+                    # Execute the assertion check
+                    self.testable_sandbox.execute_assertion(
+                        action_choice["action"],
+                        action_choice.get("parameters", {}),
+                        current_state
+                    )
                     # Report assertion success
                     ai_thread.action_executed(
                         ai_tool_call_name,

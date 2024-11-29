@@ -1,5 +1,41 @@
 from pathlib import Path
 from typing import Optional
+import jsonpath_ng
+
+def evaluate_assertion(sut_state, assertion_parameters):
+    path_expr = jsonpath_ng.parse(assertion_parameters['path'])
+    matches = [match.value for match in path_expr.find(sut_state)]
+    
+    if not matches:
+        raise AssertionError(f"No match found for path: {assertion_parameters['path']}")
+    
+    condition = assertion_parameters['condition']
+    value = assertion_parameters['value']
+    path = assertion_parameters['path']
+    
+    for match in matches:
+        if condition == 'equals':
+            if match != value:
+                raise AssertionError(
+                    f"Expected {value} at {path}, found {match}"
+                )
+        elif condition == 'not_equals':
+            if match == value:
+                raise AssertionError(
+                    f"Did not expect {value} at {path}"
+                )
+        elif condition == 'contains':
+            if value not in match:
+                raise AssertionError(f"Expected {match} to contain {value}")
+        elif condition == 'not_contains':
+            if value in match:
+                raise AssertionError(f"Did not expect {match} to contain {value}")
+        elif condition == 'matches_regex':
+            import re
+            if not re.match(value, match):
+                raise AssertionError(f"Value {match} does not match pattern {value}")
+        else:
+            raise ValueError(f"Unknown condition: {condition}")
 
 class TestableSandbox:
     """
@@ -181,3 +217,17 @@ class TestableSandbox:
             raise AttributeError("read_state function not found in read_state.py")
         
         return module.read_state()
+
+    def execute_assertion(
+        self,
+        action: str,
+        parameters: dict,
+        current_state: dict,
+    ) -> bool:
+        """
+        Executes assertion checks for regression testing.
+        """
+        if action != "assert_state":
+            raise ValueError(f"Unknown assertion type: {action}")
+            
+        evaluate_assertion(current_state, parameters)

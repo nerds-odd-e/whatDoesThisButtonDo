@@ -46,39 +46,53 @@ class GetNextActionCommand:
                 "required": ["action", "parameters", "test_intention"]
             }
         }, {
-            "name": "assertion_for_regression",
-            "description": (
-                "Make an assertion about the current state before proceeding"
-            ),
+    "name": "assertion_for_regression",
+    "description": "Make an assertion about the current state before proceeding.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "action": {
+                "type": "string",
+                "enum": ["assert_state"],
+                "description": "The assertion to make"
+            },
             "parameters": {
                 "type": "object",
+                "description": "Parameters for the assertion",
                 "properties": {
-                    "action": {
+                    "path": {
                         "type": "string",
-                        "enum": ["assert_current_state_matches_regex"],
-                        "description": "The assertion to make"
+                        "description": (
+                            "JSON path to the element to assert "
+                            "(e.g., 'user.name.first')"
+                        )
                     },
-                    "parameters": {
-                        "type": "object",
-                        "description": "Parameters for the assertion",
-                        "properties": {
-                            "pattern": {
-                                "type": "string",
-                                "description": (
-                                    "Regex pattern to match against current state"
-                                )
-                            }
-                        },
-                        "required": ["pattern"]
-                    },
-                    "assertion_purpose": {
+                    "condition": {
                         "type": "string",
-                        "description": "Why this assertion is important for the test"
+                        "enum": [
+                            "equals", 
+                            "not_equals", 
+                            "contains", 
+                            "not_contains", 
+                            "matches_regex"
+                        ],
+                        "description": "The condition to check"
+                    },
+                    "value": {
+                        "type": "string",
+                        "description": "The expected value or pattern"
                     }
                 },
-                "required": ["action", "parameters", "assertion_purpose"]
+                "required": ["path", "condition", "value"]
+            },
+            "assertion_purpose": {
+                "type": "string",
+                "description": "Why this assertion is important for the test"
             }
-        }, {
+        },
+        "required": ["action", "parameters", "assertion_purpose"]
+    }
+}, {
             "name": "test_done",
             "description": (
                 "Call this when the test should end, either due to success "
@@ -128,30 +142,34 @@ class GetNextActionCommand:
             )
         
         message = (
-            "At this state in the test, you have:\n"
-            f"# Available Actions:\n{actions_description}\n\n"
-            "# Available Assertions:\n"
-            "- assert_current_state_matches_regex: Verify state matches a "
-            "regex pattern\n\n"
-            "Given these available actions and assertions, you can:\n"
-            "1. Make assertions about the current state using "
-            "assertion_for_regression\n"
-            "2. Choose the next action using select_next_action "
-            "(ONLY from the Available Actions list above)\n"
-            "3. End the test using test_done\n\n"
-            "Important: Make only one function call at a time. "
-            "The next action MUST be chosen from "
-            "the Available Actions list above - if no actions are available, "
-            "you can only make assertions or call test_done. "
-            "Add assertions only when they provide meaningful "
-            "validation of critical application state - avoid assertions "
-            "that are too sensitive to unrelated changes or when the test "
-            "has just started. "
-            "Don't repeat the last assertion. "
-            "Call test_done if you spot any errors, consider the test goal "
-            "is achieved, or if there are no possible actions available.\n"
-        )
-        
+    "At this state in the test, you have:\n"
+    f"# Available Actions:\n{actions_description}\n\n"
+    "# Available Assertions:\n"
+    "- assert_state: Verify a condition on a specific part of the state.\n"
+    "  * 'path': JSON path to the element to check (e.g., 'user.name.first').\n"
+    "  * 'condition': One of ['equals', 'not_equals', 'contains',\n"
+    "    'not_contains', 'matches_regex'].\n"
+    "  * 'value': The expected value or pattern.\n"
+    "  * Example:\n"
+    "    action: 'assert_state'\n"
+    "    parameters:\n"
+    "      path: 'error'\n"
+    "      condition: 'matches_regex'\n"
+    "      value: '.*required: oracle_dir.*'\n\n"
+    "Given these available actions and assertions, you can:\n"
+    "1. Make assertions about the current state using assertion_for_regression.\n"
+    "2. Choose the next action using select_next_action (ONLY from the Available\n"
+    "   Actions list above).\n"
+    "3. End the test using test_done.\n\n"
+    "Important: Make only one function call at a time. The next action MUST be chosen\n"
+    "from the Available Actions list above - if no actions are available, you can\n"
+    "only make assertions or call test_done. Add assertions only when they provide\n"
+    "meaningful validation of critical application state - avoid assertions that are\n"
+    "too sensitive to unrelated changes or when the test has just started. Don't\n"
+    "repeat the last assertion. Call test_done if you spot any errors, consider the\n"
+    "test goal is achieved, or if there are no possible actions available.\n"
+)
+
         self.openai_client.append_message("user", message)
         return []
     
