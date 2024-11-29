@@ -36,18 +36,18 @@ class AITestExecutionThread:
         )
         return command.execute()
 
-    def action_executed(self, function_name, action_choice, current_state):
+    def action_executed(self, function_name, action_choice, status):
         """
         Record an executed action and its result in the history
         
         Args:
             function_name: Name of the function that was called
             action_choice: The action that was executed
-            current_state: The resulting state after execution
+            status: The status after execution
         """
         history_entry = {
             "function_name": function_name,
             "action": action_choice,
-            "status": current_state.get("status", None)
+            "status": status
         }
         self.action_history.append(history_entry) 

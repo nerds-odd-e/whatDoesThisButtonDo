@@ -81,7 +81,11 @@ class ExploratoryTest:
                 
                 # Read and print the current state after the action
                 current_state = self.testable_sandbox.read_state()
-                ai_thread.action_executed(function_name, action_choice, current_state)
+                ai_thread.action_executed(
+                    function_name, 
+                    action_choice, 
+                    current_state.get("status", None)
+                )
                 print("Current state:", current_state)
         finally:
             # Ensure teardown is called even if an exception occurs
