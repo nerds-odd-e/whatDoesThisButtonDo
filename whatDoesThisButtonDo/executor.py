@@ -6,9 +6,9 @@ from whatDoesThisButtonDo.AiAssistant.ai_exploratory_test_assistant import (
     AIExploratoryTestAssistant
 )
 
-class ExecutorFactory:
+class ExplorerFactory:
     """
-    Factory class for creating and configuring Executor instances.
+    Factory class for creating and configuring Explorer instances.
     Handles the creation and setup of test environments and scopes.
     """
     
@@ -19,7 +19,7 @@ class ExecutorFactory:
         
     def with_sandbox(self, 
                     testable_sandbox: TestableSandbox, 
-                    config: Dict[str, Any] = None) -> 'ExecutorFactory':
+                    config: Dict[str, Any] = None) -> 'ExplorerFactory':
         self._testable_sandbox = testable_sandbox
         self._sandbox_config = config or {}
         return self
@@ -27,27 +27,27 @@ class ExecutorFactory:
     def with_ai_assistant(
         self, 
         ai_assistant: AIExploratoryTestAssistant
-    ) -> 'ExecutorFactory':
+    ) -> 'ExplorerFactory':
         self._ai_assistant = ai_assistant
         return self
         
-    def build(self) -> 'Executor':
+    def build(self) -> 'Explorer':
         if not self._testable_sandbox:
             raise ValueError("Testable sandbox must be configured before building")
             
         if not self._ai_assistant:
             raise ValueError("AI assistant must be configured before building")
             
-        return Executor(
+        return Explorer(
             self._testable_sandbox, 
             self._sandbox_config, 
             self._ai_assistant
         )
 
-class Executor:
+class Explorer:
     """
     Responsible for executing tests and managing the test environment.
-    Based on the domain model, Executor runs tests and manages the test sandbox.
+    Based on the domain model, Explorer runs tests and manages the test sandbox.
     """
     
     def __init__(
@@ -69,14 +69,14 @@ class Executor:
         self.ai_assistant = ai_assistant
         
     @classmethod
-    def create(cls) -> ExecutorFactory:
+    def create(cls) -> ExplorerFactory:
         """
         Factory method to start building an Executor instance.
         
         Returns:
             ExecutorFactory instance for configuring the Executor
         """
-        return ExecutorFactory()
+        return ExplorerFactory()
     
     def explore(self) -> None:
         """

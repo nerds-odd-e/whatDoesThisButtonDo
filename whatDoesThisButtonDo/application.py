@@ -1,5 +1,5 @@
 from . import AIExploratoryTestAssistant
-from .executor import Executor
+from .executor import Explorer
 from .test_scope import TestScope
 import os
 
@@ -32,7 +32,7 @@ class Application:
         
         # Create and run executors for each sandbox
         for sandbox in test_scope.get_testable_sandboxes():
-            executor = (Executor.create()
+            executor = (Explorer.create()
                     .with_sandbox(sandbox, {
                         "environment": "test",
                         "cleanup_enabled": True
