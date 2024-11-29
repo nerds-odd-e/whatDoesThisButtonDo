@@ -4,7 +4,7 @@ class AIExploratoryTestAssistant:
         self.api_key = api_key
         self.model = model
 
-    def create_thread(self, goal):
+    def create_test_execution_thread(self, goal):
         """
         Creates a new AI assistant thread for handling test interactions
         
@@ -14,8 +14,8 @@ class AIExploratoryTestAssistant:
         Returns:
             AIAssistantThread: A new thread instance for test execution
         """
-        from .ai_assistant_thread import AIAssistantThread
-        return AIAssistantThread(
+        from .ai_test_execution_thread import AITestExecutionThread
+        return AITestExecutionThread(
             test_oracles=self.test_oracles,
             api_key=self.api_key,
             model=self.model,

@@ -37,7 +37,7 @@ class ExploratoryTest:
         """
         try:
             # Create an AI assistant thread for this test execution
-            ai_thread = self.ai_assistant.create_thread(self.goal)
+            ai_thread = self.ai_assistant.create_test_execution_thread(self.goal)
             
             possible_next_actions = self.testable_sandbox.start()
             current_state = {"status": "started"}

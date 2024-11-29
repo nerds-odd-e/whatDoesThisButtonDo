@@ -1,7 +1,7 @@
 from .openai_client import OpenAIClient
 from .get_next_action_command import GetNextActionCommand
 
-class AIAssistantThread:
+class AITestExecutionThread:
     def __init__(self, test_oracles, api_key: str, model: str, goal):
         self.openai_client = OpenAIClient(
             test_oracles=test_oracles,
