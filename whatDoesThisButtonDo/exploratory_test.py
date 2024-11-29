@@ -34,8 +34,17 @@ class ExploratoryTest:
             
             possible_next_actions = self.testable_sandbox.start()
             current_state = {"status": "started"}
+            step_count = 0
+            max_steps = 100
             
             while True:
+                step_count += 1
+                if step_count > max_steps:
+                    raise RuntimeError(
+                        f"Test exceeded maximum number of steps ({max_steps}). "
+                        "Possible infinite loop detected."
+                    )
+                
                 # Get AI's chosen action and parameters using the thread
                 function_name, action_choice = ai_thread.get_next_action(
                     possible_next_actions,
