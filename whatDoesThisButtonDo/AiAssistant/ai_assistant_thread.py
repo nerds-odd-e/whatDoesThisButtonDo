@@ -25,7 +25,8 @@ class AIAssistantThread:
         command = GetNextActionCommand(
             self.openai_client,
             possible_actions,
-            self.action_history
+            self.action_history,
+            sut_state
         )
         response = command.execute()
         return response

@@ -7,10 +7,11 @@ class GetNextActionCommand:
         self,
         openai_client: OpenAIClient,
         possible_actions: Dict[str, Dict[str, Any]],
-        action_history=None
+        action_history=None,
+        sut_state=None
     ):
         self.openai_client = openai_client
-        self.messages = self._create_messages(possible_actions)
+        self.messages = self._create_messages(possible_actions, sut_state)
         self.action_history = action_history or []
     
     def execute(self):
@@ -55,16 +56,29 @@ class GetNextActionCommand:
         except json.JSONDecodeError as e:
             raise ValueError(f"Failed to parse AI response as JSON: {response}") from e
     
-    def _create_messages(self, possible_actions):
+    def _create_messages(self, possible_actions, sut_state):
         actions_description = "\n".join(
             f"- {action_name}: {action_info['description']}" 
             for action_name, action_info in possible_actions.items()
         )
         
-        return (
-            "Given these possible actions, choose the next action to take "
-            "and specify any required parameters.\n\n"
-            f"Available Actions:\n{actions_description}\n\n"
-            "Respond by making tool call.\n"
-        )
+        messages = []
+        
+        if sut_state:
+            messages.append({
+                "role": "system",
+                "content": f"Current system state:\n{json.dumps(sut_state, indent=2)}"
+            })
+        
+        messages.append({
+            "role": "user",
+            "content": (
+                "Given these possible actions, choose the next action to take "
+                "and specify any required parameters.\n\n"
+                f"Available Actions:\n{actions_description}\n\n"
+                "Respond by making tool call.\n"
+            )
+        })
+        
+        return messages
     

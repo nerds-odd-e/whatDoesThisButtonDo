@@ -20,7 +20,7 @@ class OpenAIClient:
         
     def create_chat_completion(
         self, 
-        user_message: str,
+        messages: list,
         function_schema: dict = None,
         action_history: list = None
     ) -> str:
@@ -28,7 +28,7 @@ class OpenAIClient:
         Create a chat completion using the OpenAI API with function calling
 
         Args:
-            user_message: The user's message content as a string
+            messages: List of message objects with role and content
             function_schema: Optional function definition for tool calling
             action_history: List of previous actions and their results
 
@@ -38,7 +38,7 @@ class OpenAIClient:
         Raises:
             Exception: If there's an error creating the chat completion
         """
-        messages = [
+        chat_messages = [
             self.system_message,
             {"role": "assistant", "content": self.test_oracles.as_assistant_message()},
         ]
@@ -46,7 +46,7 @@ class OpenAIClient:
         # Add function messages for action history
         if action_history:
             for entry in action_history:
-                messages.append({
+                chat_messages.append({
                     "role": "function",
                     "name": entry["function_name"],
                     "content": str({
@@ -55,13 +55,14 @@ class OpenAIClient:
                     })
                 })
         
-        messages.append({"role": "user", "content": user_message})
+        # Add the provided messages
+        chat_messages.extend(messages)
         
         try:
             # Add tools if function schema is provided
             kwargs = {
                 "model": self.model,
-                "messages": messages,
+                "messages": chat_messages,
             }
             
             if function_schema:
