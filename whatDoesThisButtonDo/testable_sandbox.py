@@ -33,7 +33,12 @@ def evaluate_assertion(sut_state, assertion_parameters):
         elif condition == 'matches_regex':
             import re
             if not re.match(value, match):
-                raise AssertionError(f"Value {match} does not match pattern {value}")
+                raise AssertionError(
+                    f"Value did not match regex pattern.\n"
+                    f"Pattern: {value}\n"
+                    f"Actual output:\n{match}\n"
+                    "Hint: For CLI output, use (?s).* to match across multiple lines"
+                )
         else:
             raise ValueError(f"Unknown condition: {condition}")
 
