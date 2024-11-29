@@ -23,7 +23,7 @@ class OpenAIClient:
         messages: list,
         function_schema: dict = None,
         action_history: list = None
-    ) -> str:
+    ) -> dict:
         """
         Create a chat completion using the OpenAI API with function calling
 
@@ -33,7 +33,7 @@ class OpenAIClient:
             action_history: List of previous actions and their results
 
         Returns:
-            str: The function call arguments as a JSON string
+            dict: The function call arguments as a JSON string
 
         Raises:
             Exception: If there's an error creating the chat completion
@@ -81,7 +81,10 @@ class OpenAIClient:
             # Handle function calling response
             if function_schema and response.choices[0].message.tool_calls:
                 tool_call = response.choices[0].message.tool_calls[0]
-                return tool_call.function.arguments
+                return {
+                    'name': tool_call.function.name,
+                    'arguments': tool_call.function.arguments
+                }
                 
             return response.choices[0].message.content.strip()
         except Exception as e:

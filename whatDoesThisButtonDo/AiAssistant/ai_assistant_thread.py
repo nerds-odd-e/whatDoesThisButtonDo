@@ -19,8 +19,8 @@ class AIAssistantThread:
             sut_state: Current state of the system under test
             
         Returns:
-            dict: Contains 'action' name and 'parameters' for the chosen action,
-                 or None to indicate testing should stop
+            tuple: (function_name, dict with action and parameters)
+                  or (None, None) to indicate testing should stop
         """
         command = GetNextActionCommand(
             self.openai_client,
@@ -28,19 +28,19 @@ class AIAssistantThread:
             self.action_history,
             sut_state
         )
-        response = command.execute()
-        return response
+        return command.execute()
 
-    def action_executed(self, action_choice, current_state):
+    def action_executed(self, function_name, action_choice, current_state):
         """
         Record an executed action and its result in the history
         
         Args:
+            function_name: Name of the function that was called
             action_choice: The action that was executed
             current_state: The resulting state after execution
         """
         history_entry = {
-            "function_name": "select_next_action",
+            "function_name": function_name,
             "action": action_choice,
             "status": current_state.get("status", None)
         }

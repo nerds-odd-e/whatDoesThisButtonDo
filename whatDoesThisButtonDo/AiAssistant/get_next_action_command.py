@@ -16,10 +16,10 @@ class GetNextActionCommand:
     
     def execute(self):
         """
-        Execute the command and return parsed JSON response
+        Execute the command and return parsed JSON response with function name
         
         Returns:
-            dict: Contains 'action' and 'parameters' keys
+            tuple: (function_name, dict with 'action' and 'parameters' keys)
         """
         # Create function schema for the action selection
         function_schema = {
@@ -52,9 +52,13 @@ class GetNextActionCommand:
         )
         
         try:
-            return json.loads(response)
+            return (
+                response['name'],
+                json.loads(response['arguments'])
+            )
         except json.JSONDecodeError as e:
-            raise ValueError(f"Failed to parse AI response as JSON: {response}") from e
+            error_msg = f"Failed to parse AI response as JSON: {response['arguments']}"
+            raise ValueError(error_msg) from e
     
     def _create_messages(self, possible_actions, sut_state):
         actions_description = "\n".join(
