@@ -20,7 +20,7 @@ class GetNextActionCommand:
         Execute the command and return parsed JSON response with function name
         
         Returns:
-            tuple: (function_name, dict with 'action' and 'parameters' keys)
+            tuple: (function_name, dict with action details)
         """
         self._create_messages(self.possible_actions, self.sut_state)
         
@@ -44,6 +44,39 @@ class GetNextActionCommand:
                     }
                 },
                 "required": ["action", "parameters", "test_intention"]
+            }
+        }, {
+            "name": "assertion_for_regression",
+            "description": (
+                "Make an assertion about the current state before proceeding"
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "enum": ["assert_current_state_matches_regex"],
+                        "description": "The assertion to make"
+                    },
+                    "parameters": {
+                        "type": "object",
+                        "description": "Parameters for the assertion",
+                        "properties": {
+                            "pattern": {
+                                "type": "string",
+                                "description": (
+                                    "Regex pattern to match against current state"
+                                )
+                            }
+                        },
+                        "required": ["pattern"]
+                    },
+                    "assertion_purpose": {
+                        "type": "string",
+                        "description": "Why this assertion is important for the test"
+                    }
+                },
+                "required": ["action", "parameters", "assertion_purpose"]
             }
         }, {
             "name": "test_done",
@@ -94,16 +127,22 @@ class GetNextActionCommand:
                 f"Current system state:\n{json.dumps(sut_state, indent=2)}"
             )
         
-        self.openai_client.append_message(
-            "user",
-            "Given these possible actions, choose the next action to take "
-            "and specify any required parameters.\n\n"
+        message = (
+            "Given these possible actions, you can:\n"
+            "1. Make assertions about the current state using "
+            "assertion_for_regression\n"
+            "2. Choose the next action using select_next_action\n"
+            "3. End the test using test_done\n\n"
             f"Available Actions:\n{actions_description}\n\n"
+            "Available Assertions:\n"
+            "- assert_current_state_matches_regex: Verify state matches a "
+            "regex pattern\n\n"
+            "Important: Make only one function call at a time. Consider making "
+            "assertions before proceeding with actions or ending the test.\n"
             "Call test_done if you spot any errors, consider the test goal "
-            "is achieved, or if there are no possible actions available. "
-            "Otherwise, respond by selecting the next action using "
-            "select_next_action.\n"
+            "is achieved, or if there are no possible actions available.\n"
         )
         
-        return []  # Return empty list since messages are handled by OpenAIClient
+        self.openai_client.append_message("user", message)
+        return []
     

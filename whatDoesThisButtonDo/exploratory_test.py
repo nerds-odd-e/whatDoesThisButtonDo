@@ -74,19 +74,29 @@ class ExploratoryTest:
 
                 # Execute the chosen action in the sandbox
                 parameters = action_choice.get("parameters", None)
-                possible_next_actions = self.testable_sandbox.execute_action(
-                    action_choice["action"],
-                    parameters
-                )
                 
-                # Read and print the current state after the action
-                current_state = self.testable_sandbox.read_state()
-                ai_thread.action_executed(
-                    function_name, 
-                    action_choice, 
-                    current_state.get("status", None)
-                )
-                print("Current state:", current_state)
+                if function_name == "assertion_for_regression":
+                    # Report assertion success
+                    ai_thread.action_executed(
+                        function_name,
+                        action_choice,
+                        "assertion passed"
+                    )
+                else:
+                    # Execute regular action and update possible next actions
+                    possible_next_actions = self.testable_sandbox.execute_action(
+                        action_choice["action"],
+                        parameters
+                    )
+                    # Read and print the current state after the action
+                    current_state = self.testable_sandbox.read_state()
+                    ai_thread.action_executed(
+                        function_name, 
+                        action_choice, 
+                        current_state.get("status", None)
+                    )
+                    print("Current state:", current_state)
+                
         finally:
             # Ensure teardown is called even if an exception occurs
             self.testable_sandbox.teardown()
