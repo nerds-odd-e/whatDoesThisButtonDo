@@ -25,7 +25,7 @@ class AITestExecutionThread:
             sut_state: Current state of the system under test
             
         Returns:
-            tuple: (function_name, dict with action and parameters)
+            tuple: (ai_tool_call_name, dict with action and parameters)
                   or (None, None) to indicate testing should stop
         """
         command = GetNextActionCommand(
@@ -36,17 +36,17 @@ class AITestExecutionThread:
         )
         return command.execute()
 
-    def action_executed(self, function_name, action_choice, status):
+    def action_executed(self, ai_tool_call_name, action_choice, status):
         """
         Record an executed action and its result in the history
         
         Args:
-            function_name: Name of the function that was called
+            ai_tool_call_name: Name of the AI tool call that was executed
             action_choice: The action that was executed
             status: The status after execution
         """
         history_entry = {
-            "function_name": function_name,
+            "function_name": ai_tool_call_name,
             "action": action_choice,
             "status": status
         }

@@ -58,13 +58,13 @@ class ExploratoryTest:
                     )
                 
                 # Get AI's chosen action and parameters using the thread
-                function_name, action_choice = ai_thread.get_next_action(
+                ai_tool_call_name, action_choice = ai_thread.get_next_action(
                     possible_next_actions,
                     current_state
                 )
                 
                 # Handle test_done function
-                if function_name == "test_done":
+                if ai_tool_call_name == "test_done":
                     print(f"Test completed - Result: {action_choice['result']}")
                     print(f"Conclusion: {action_choice['conclusion']}")
                     break
@@ -73,16 +73,16 @@ class ExploratoryTest:
                 if action_choice is None:
                     break
                 
-                print(f"Function: {function_name}")
+                print(f"Tool Call: {ai_tool_call_name}")
                 print(f"Action: {action_choice}")
 
                 # Execute the chosen action in the sandbox
                 parameters = action_choice.get("parameters", None)
                 
-                if function_name == "assertion_for_regression":
+                if ai_tool_call_name == "assertion_for_regression":
                     # Report assertion success
                     ai_thread.action_executed(
-                        function_name,
+                        ai_tool_call_name,
                         action_choice,
                         "assertion passed"
                     )
@@ -95,7 +95,7 @@ class ExploratoryTest:
                     # Read and print the current state after the action
                     current_state = self.testable_sandbox.read_state()
                     ai_thread.action_executed(
-                        function_name, 
+                        ai_tool_call_name, 
                         action_choice, 
                         current_state.get("status", None)
                     )

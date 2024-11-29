@@ -36,7 +36,7 @@ class OpenAIClient:
             action_history: List of previous actions and their results
 
         Returns:
-            dict: The function call arguments as a JSON string
+            dict: The tool call arguments as a JSON string
 
         Raises:
             Exception: If there's an error creating chat completion
