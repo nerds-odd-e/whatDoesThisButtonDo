@@ -8,6 +8,7 @@ class AIAssistantThread:
             api_key=api_key,
             model=model
         )
+        self.action_history = []
 
     def get_next_action(self, possible_actions, sut_state):
         """
@@ -21,6 +22,25 @@ class AIAssistantThread:
             dict: Contains 'action' name and 'parameters' for the chosen action,
                  or None to indicate testing should stop
         """
-        command = GetNextActionCommand(self.openai_client, possible_actions)
+        command = GetNextActionCommand(
+            self.openai_client,
+            possible_actions,
+            self.action_history
+        )
         response = command.execute()
-        return response 
+        return response
+
+    def action_executed(self, action_choice, current_state):
+        """
+        Record an executed action and its result in the history
+        
+        Args:
+            action_choice: The action that was executed
+            current_state: The resulting state after execution
+        """
+        history_entry = {
+            "function_name": "select_next_action",
+            "action": action_choice,
+            "status": current_state.get("status", None)
+        }
+        self.action_history.append(history_entry) 

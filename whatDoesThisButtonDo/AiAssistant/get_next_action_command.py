@@ -6,10 +6,12 @@ class GetNextActionCommand:
     def __init__(
         self,
         openai_client: OpenAIClient,
-        possible_actions: Dict[str, Dict[str, Any]]
+        possible_actions: Dict[str, Dict[str, Any]],
+        action_history=None
     ):
         self.openai_client = openai_client
         self.messages = self._create_messages(possible_actions)
+        self.action_history = action_history or []
     
     def execute(self):
         """
@@ -44,7 +46,8 @@ class GetNextActionCommand:
         
         response = self.openai_client.create_chat_completion(
             self.messages,
-            function_schema=function_schema
+            function_schema=function_schema,
+            action_history=self.action_history
         )
         
         try:

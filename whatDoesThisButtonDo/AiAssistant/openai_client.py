@@ -22,6 +22,7 @@ class OpenAIClient:
         self, 
         user_message: str,
         function_schema: dict = None,
+        action_history: list = None
     ) -> str:
         """
         Create a chat completion using the OpenAI API with function calling
@@ -29,6 +30,7 @@ class OpenAIClient:
         Args:
             user_message: The user's message content as a string
             function_schema: Optional function definition for tool calling
+            action_history: List of previous actions and their results
 
         Returns:
             str: The function call arguments as a JSON string
@@ -39,8 +41,21 @@ class OpenAIClient:
         messages = [
             self.system_message,
             {"role": "assistant", "content": self.test_oracles.as_assistant_message()},
-            {"role": "user", "content": user_message}
         ]
+        
+        # Add function messages for action history
+        if action_history:
+            for entry in action_history:
+                messages.append({
+                    "role": "function",
+                    "name": entry["function_name"],
+                    "content": str({
+                        "action": entry["action"],
+                        "status": entry["status"]
+                    })
+                })
+        
+        messages.append({"role": "user", "content": user_message})
         
         try:
             # Add tools if function schema is provided
