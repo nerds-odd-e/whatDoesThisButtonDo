@@ -4,7 +4,7 @@ class AIExploratoryTestAssistant:
         self.api_key = api_key
         self.model = model
 
-    def create_thread(self, goal=None):
+    def create_thread(self, goal):
         """
         Creates a new AI assistant thread for handling test interactions
         

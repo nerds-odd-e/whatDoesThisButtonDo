@@ -2,7 +2,7 @@ from .openai_client import OpenAIClient
 from .get_next_action_command import GetNextActionCommand
 
 class AIAssistantThread:
-    def __init__(self, test_oracles, api_key: str, model: str, goal=None):
+    def __init__(self, test_oracles, api_key: str, model: str, goal):
         self.openai_client = OpenAIClient(
             test_oracles=test_oracles,
             api_key=api_key,
@@ -10,12 +10,11 @@ class AIAssistantThread:
         )
         self.action_history = []
         
-        if goal:
-            goal_message = (
-                f"Test Goal: {goal['title']}\n"
-                f"Description: {goal['description']}"
-            )
-            self.openai_client.append_message("user", goal_message)
+        goal_message = (
+            f"Test Goal: {goal['title']}\n"
+            f"Description: {goal['description']}"
+        )
+        self.openai_client.append_message("user", goal_message)
 
     def get_next_action(self, possible_actions, sut_state):
         """
