@@ -1,10 +1,11 @@
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from whatDoesThisButtonDo.testable_sandbox import TestableSandbox
 from .exploratory_test import ExploratoryTest
 from whatDoesThisButtonDo.AiAssistant.ai_exploratory_test_assistant import (
     AIExploratoryTestAssistant
 )
+from .regression_test_proposal import RegressionTestProposal
 
 class ExplorerFactory:
     """
@@ -78,13 +79,17 @@ class Explorer:
         """
         return ExplorerFactory()
     
-    def explore(self) -> None:
+    def explore(self) -> List[RegressionTestProposal]:
         """
-        Initiates exploratory testing using the configured sandbox and AI assistant
+        Initiates exploratory testing and returns regression test proposals
+        
+        Returns:
+            List of RegressionTestProposal objects
         """
         exploratory_test = ExploratoryTest(
             self.testable_sandbox, 
             self.ai_assistant
         )
-        exploratory_test.execute()
+        proposal = exploratory_test.execute()
+        return [proposal]
         

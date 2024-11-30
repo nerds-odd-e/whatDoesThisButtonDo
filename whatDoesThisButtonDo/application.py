@@ -1,6 +1,9 @@
 from . import AIExploratoryTestAssistant
 from .explorer import Explorer
 from .test_scope import TestScope
+from pathlib import Path
+from typing import List
+from .regression_test_proposal import RegressionTestProposal
 import os
 
 
@@ -30,6 +33,9 @@ class Application:
             model="gpt-4o-mini"
         )
         
+        # Collect all proposals
+        all_proposals: List[RegressionTestProposal] = []
+        
         # Create and run executors for each sandbox
         for sandbox in test_scope.get_testable_sandboxes():
             executor = (Explorer.create()
@@ -39,4 +45,29 @@ class Application:
                     })
                     .with_ai_assistant(openai_client)
                     .build())
-            executor.explore()
+            proposals = executor.explore()
+            all_proposals.extend(proposals)
+        
+        # Ask user to confirm each proposal
+        for proposal in all_proposals:
+            print("\nTest Proposal:")
+            print(f"Title: {proposal.test_title}")
+            print(f"Description: {proposal.test_description}")
+            print(f"Result: {proposal.test_result}")
+            print(f"Conclusion: {proposal.test_conclusion}")
+            
+            while True:
+                response = input("\nWould you like to keep this test? (y/n): ").lower()
+                if response in ['y', 'n']:
+                    break
+                print("Please answer 'y' or 'n'")
+            
+            if response == 'y':
+                # Create the regression tests directory if it doesn't exist
+                regression_dir = Path(oracle_dir) / "regression_tests"
+                regression_dir.mkdir(exist_ok=True)
+                
+                # Write the test to the appropriate file
+                test_file = regression_dir / f"test_{proposal.sandbox_name}.py"
+                proposal.write_to_file(test_file)
+                print(f"Test written to {test_file}")

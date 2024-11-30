@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 from .testable_sandbox import TestableSandbox
+from .regression_test_proposal import RegressionTestProposal
 
 if TYPE_CHECKING:
     from . import AIExploratoryTestAssistant
@@ -31,10 +32,18 @@ class ExploratoryTest:
                 "oracle_dir is required."
             )
         }
+        self.regression_proposal = RegressionTestProposal(
+            sandbox_name=testable_sandbox.name,
+            test_title=self.goal["title"],
+            test_description=self.goal["description"]
+        )
         
-    def execute(self) -> None:
+    def execute(self) -> RegressionTestProposal:
         """
-        Executes the exploratory testing process
+        Executes the exploratory testing process and returns a regression test proposal
+        
+        Returns:
+            RegressionTestProposal containing the test steps and results
         """
         try:
             # Create an AI assistant thread for this test execution
@@ -67,7 +76,18 @@ class ExploratoryTest:
                 if ai_tool_call_name == "test_done":
                     print(f"Test completed - Result: {action_choice['result']}")
                     print(f"Conclusion: {action_choice['conclusion']}")
+                    self.regression_proposal.test_result = action_choice['result']
+                    self.regression_proposal.test_conclusion = (
+                        action_choice['conclusion']
+                    )
                     break
+                
+                # Record the action in the proposal
+                self.regression_proposal.add_step(
+                    ai_tool_call_name,
+                    action_choice["action"],
+                    action_choice.get("parameters")
+                )
                 
                 # If AI decides to stop testing, break the loop
                 if action_choice is None:
@@ -107,6 +127,8 @@ class ExploratoryTest:
                     )
                     print("Current state:", current_state)
                 
+            return self.regression_proposal
+            
         finally:
             # Ensure teardown is called even if an exception occurs
             self.testable_sandbox.teardown()
