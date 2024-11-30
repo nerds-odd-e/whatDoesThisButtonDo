@@ -31,7 +31,7 @@
             source venv/bin/activate
             
             # Make Nix Python packages visible to IDEs
-            export PYTHONPATH="${pkgs.python3Packages.jsonpath-ng}/lib/python3.11/site-packages:${pkgs.python3Packages.openai}/lib/python3.11/site-packages:$PYTHONPATH"
+            export PYTHONPATH="$PWD:${pkgs.python3Packages.jsonpath-ng}/lib/python3.11/site-packages:${pkgs.python3Packages.openai}/lib/python3.11/site-packages:$PYTHONPATH"
             
             # Set up a green prompt to indicate nix environment
             export PS1="\[\033[1;32m\][nix-dev]\[\033[0m\] \[\033[1;34m\]\w\[\033[0m\] $ "

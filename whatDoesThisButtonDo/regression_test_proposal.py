@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
 from pathlib import Path
-import textwrap
 
 @dataclass
 class TestStep:
@@ -68,7 +67,7 @@ class RegressionTestProposal:
         for step in self.steps:
             if step.tool_call == "assertion_for_regression":
                 params_str = ", ".join(
-                    f"{k}={repr(v)}" 
+                    f"'{k}': {repr(v)}" 
                     for k, v in step.parameters.items()
                 )
                 code.append("        sandbox.execute_assertion(")
@@ -79,7 +78,7 @@ class RegressionTestProposal:
             else:
                 if step.parameters:
                     params_str = ", ".join(
-                        f"{k}={repr(v)}" 
+                        f"'{k}': {repr(v)}" 
                         for k, v in step.parameters.items()
                     )
                     code.append(
@@ -98,4 +97,5 @@ class RegressionTestProposal:
             "        sandbox.teardown()"
         ])
         
-        return "\n".join(textwrap.indent(line, ' ' * 4) for line in code) 
+        # Return the code without the extra indentation
+        return "\n".join(code) 
